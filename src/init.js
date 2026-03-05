@@ -74,7 +74,7 @@ export async function init(targetDir, options = {}) {
   if (!options._skipPrompts) {
     await installDependencies(targetDir);
   }
-  await writeProjectReadme(targetDir, language);
+  await writeProjectReadme(targetDir);
 
   // Write user preferences
   const prefsPath = join(targetDir, '_squados', '_memory', 'preferences.md');
@@ -136,14 +136,8 @@ async function installDependencies(targetDir) {
   execSync('npx playwright install chromium', { cwd: targetDir, stdio: 'inherit' });
 }
 
-async function writeProjectReadme(targetDir, language) {
-  const langMap = {
-    'English': 'en',
-    'Português (Brasil)': 'pt-BR',
-    'Español': 'es',
-  };
-  const code = langMap[language] || 'en';
-  const readmePath = join(__dirname, 'readme', `${code}.md`);
+async function writeProjectReadme(targetDir) {
+  const readmePath = join(__dirname, 'readme', 'README.md');
   const content = await readFile(readmePath, 'utf-8');
   await writeFile(join(targetDir, 'README.md'), content, 'utf-8');
 }
