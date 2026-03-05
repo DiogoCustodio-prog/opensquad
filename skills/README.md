@@ -1,4 +1,4 @@
-# SquadOS Skill Catalog
+# Opensquad Skill Catalog
 
 Browse available skills for your squads. Install any skill with:
 

@@ -50,8 +50,8 @@ if (command === 'init') {
   opensquad — Multi-agent orchestration for Claude Code
 
   Usage:
-    npx opensquad init                    Initialize SquadOS
-    npx opensquad update                  Update SquadOS core
+    npx opensquad init                    Initialize Opensquad
+    npx opensquad update                  Update Opensquad core
     npx opensquad install <name>          Install a skill
     npx opensquad uninstall <name>        Remove a skill
     npx opensquad update <name>           Update a specific skill

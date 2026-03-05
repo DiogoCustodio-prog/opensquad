@@ -15,7 +15,7 @@
 ### Task 1: Add Run Folder Creation section to Pipeline Runner
 
 **Files:**
-- Modify: `_squados/core/runner.pipeline.md:107-117` (between "Veto Condition Enforcement" and "Review Loops")
+- Modify: `_opensquad/core/runner.pipeline.md:107-117` (between "Veto Condition Enforcement" and "Review Loops")
 
 **Step 1: Add the "Run Folder Creation" section**
 
@@ -86,7 +86,7 @@ Add `run-folder-path` to the tracked state list (after line 152):
 **Step 4: Commit**
 
 ```bash
-git add _squados/core/runner.pipeline.md
+git add _opensquad/core/runner.pipeline.md
 git commit -m "feat(runner): add run folder creation after step 1"
 ```
 
@@ -95,7 +95,7 @@ git commit -m "feat(runner): add run folder creation after step 1"
 ### Task 2: Mirror runner changes to template
 
 **Files:**
-- Modify: `templates/_squados/core/runner.pipeline.md` (same changes as Task 1)
+- Modify: `templates/_opensquad/core/runner.pipeline.md` (same changes as Task 1)
 
 **Step 1: Apply identical changes**
 
@@ -107,7 +107,7 @@ The template runner is an exact mirror of the core runner. Apply all three chang
 **Step 2: Commit**
 
 ```bash
-git add templates/_squados/core/runner.pipeline.md
+git add templates/_opensquad/core/runner.pipeline.md
 git commit -m "feat(runner): mirror run folder creation to template"
 ```
 
@@ -299,7 +299,7 @@ git commit -m "feat(yaml): update squad.yaml pipeline paths to use {run-folder}"
 ### Task 6: Update architect output directory instructions
 
 **Files:**
-- Modify: `_squados/core/architect.agent.yaml:439`
+- Modify: `_opensquad/core/architect.agent.yaml:439`
 
 **Step 1: Update the build phase directory creation instruction**
 
@@ -325,7 +325,7 @@ Add a note after line 675 to account for the new variable:
 **Step 3: Commit**
 
 ```bash
-git add _squados/core/architect.agent.yaml
+git add _opensquad/core/architect.agent.yaml
 git commit -m "feat(architect): update output directory instructions for run folders"
 ```
 

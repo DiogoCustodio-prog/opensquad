@@ -67,4 +67,4 @@ Reframe the Ideator agent (Spark) from a generic "idea generator" to a "Viral An
 3. `templates/squads/instagram-content/pipeline/steps/step-03-user-choice.md`
 4. `templates/squads/instagram-content/pipeline/steps/step-04-writing.md`
 5. `templates/squads/instagram-content/squad-party.csv`
-6. `templates/_squados/core/architect.agent.yaml`
+6. `templates/_opensquad/core/architect.agent.yaml`

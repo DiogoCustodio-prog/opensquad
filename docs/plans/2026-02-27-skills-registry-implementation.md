@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build an on-demand skills distribution system so users can browse and install SquadOS skills from the central GitHub repository, both via CLI and from within `/squados`.
+**Goal:** Build an on-demand skills distribution system so users can browse and install Opensquad skills from the central GitHub repository, both via CLI and from within `/opensquad`.
 
-**Architecture:** A `skills/` folder in the squados repo hosts skill files and a `manifest.json` registry. A new `src/skills.js` module handles fetch/install/remove using Node.js native `fetch`. The CLI gains `skills list|install|remove|update` subcommands. The `SKILL.md` gains a `/squados skills` command route and browser flow.
+**Architecture:** A `skills/` folder in the opensquad repo hosts skill files and a `manifest.json` registry. A new `src/skills.js` module handles fetch/install/remove using Node.js native `fetch`. The CLI gains `skills list|install|remove|update` subcommands. The `SKILL.md` gains a `/opensquad skills` command route and browser flow.
 
 **Tech Stack:** Node.js 20+ (native fetch, fs/promises), `raw.githubusercontent.com` for CDN delivery, `node:test` + `node:assert` for tests.
 
@@ -30,9 +30,9 @@
 **Step 2: Create `skills/README.md`**
 
 ```markdown
-# SquadOS Skills Registry
+# Opensquad Skills Registry
 
-This folder contains all available SquadOS skills distributed via `npx squados skills install`.
+This folder contains all available Opensquad skills distributed via `npx opensquad skills install`.
 
 ## Structure
 
@@ -99,8 +99,8 @@ function makeFailingFetcher(status = 503) {
   return async () => ({ ok: false, status, json: async () => ({}), text: async () => '' });
 }
 
-const MANIFEST_URL = 'https://raw.githubusercontent.com/squados-ai/squados/main/skills/manifest.json';
-const SKILL_URL_BASE = 'https://raw.githubusercontent.com/squados-ai/squados/main/skills';
+const MANIFEST_URL = 'https://raw.githubusercontent.com/opensquad-ai/opensquad/main/skills/manifest.json';
+const SKILL_URL_BASE = 'https://raw.githubusercontent.com/opensquad-ai/opensquad/main/skills';
 
 const SAMPLE_MANIFEST = JSON.stringify({
   version: '1',
@@ -129,7 +129,7 @@ test('fetchManifest throws on network error', async () => {
 // --- listInstalled ---
 
 test('listInstalled returns empty array when .claude/skills/ does not exist', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const result = await listInstalled(dir);
     assert.deepEqual(result, []);
@@ -138,11 +138,11 @@ test('listInstalled returns empty array when .claude/skills/ does not exist', as
   }
 });
 
-test('listInstalled excludes the built-in squados skill', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+test('listInstalled excludes the built-in opensquad skill', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const skillsDir = join(dir, '.claude', 'skills');
-    await mkdir(join(skillsDir, 'squados'), { recursive: true });
+    await mkdir(join(skillsDir, 'opensquad'), { recursive: true });
     await mkdir(join(skillsDir, 'seo-optimizer'), { recursive: true });
     const result = await listInstalled(dir);
     assert.deepEqual(result, ['seo-optimizer']);
@@ -152,7 +152,7 @@ test('listInstalled excludes the built-in squados skill', async () => {
 });
 
 test('listInstalled returns installed skill ids', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const skillsDir = join(dir, '.claude', 'skills');
     await mkdir(join(skillsDir, 'seo-optimizer'), { recursive: true });
@@ -169,7 +169,7 @@ test('listInstalled returns installed skill ids', async () => {
 // --- installSkill ---
 
 test('installSkill writes SKILL.md to .claude/skills/<id>/', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const fetcher = makeFetcher({ [`${SKILL_URL_BASE}/seo-optimizer/SKILL.md`]: SAMPLE_SKILL_MD });
     await installSkill('seo-optimizer', dir, fetcher);
@@ -181,7 +181,7 @@ test('installSkill writes SKILL.md to .claude/skills/<id>/', async () => {
 });
 
 test('installSkill creates .claude/skills/ directory if missing', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const fetcher = makeFetcher({ [`${SKILL_URL_BASE}/seo-optimizer/SKILL.md`]: SAMPLE_SKILL_MD });
     // No .claude/skills/ pre-created
@@ -194,7 +194,7 @@ test('installSkill creates .claude/skills/ directory if missing', async () => {
 });
 
 test('installSkill throws when skill not found in registry', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const fetcher = makeFailingFetcher(404);
     await assert.rejects(
@@ -209,7 +209,7 @@ test('installSkill throws when skill not found in registry', async () => {
 // --- removeSkill ---
 
 test('removeSkill deletes the skill directory', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     const skillDir = join(dir, '.claude', 'skills', 'seo-optimizer');
     await mkdir(skillDir, { recursive: true });
@@ -225,7 +225,7 @@ test('removeSkill deletes the skill directory', async () => {
 });
 
 test('removeSkill does not throw when skill not installed', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const dir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     await assert.doesNotReject(() => removeSkill('nonexistent', dir));
   } finally {
@@ -262,7 +262,7 @@ git commit -m "test: add failing tests for skills registry module"
 import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const REGISTRY_BASE = 'https://raw.githubusercontent.com/squados-ai/squados/main';
+const REGISTRY_BASE = 'https://raw.githubusercontent.com/opensquad-ai/opensquad/main';
 const MANIFEST_URL = `${REGISTRY_BASE}/skills/manifest.json`;
 
 export async function fetchManifest(fetcher = fetch) {
@@ -276,7 +276,7 @@ export async function listInstalled(targetDir) {
     const skillsDir = join(targetDir, '.claude', 'skills');
     const entries = await readdir(skillsDir, { withFileTypes: true });
     return entries
-      .filter((e) => e.isDirectory() && e.name !== 'squados')
+      .filter((e) => e.isDirectory() && e.name !== 'opensquad')
       .map((e) => e.name);
   } catch {
     return [];
@@ -336,13 +336,13 @@ git commit -m "feat: add skills registry module (fetch/install/remove)"
 Add these keys to the JSON (before the closing `}`):
 
 ```json
-  "skillsNotInitialized": "No SquadOS installation found. Run 'init' first.",
+  "skillsNotInitialized": "No Opensquad installation found. Run 'init' first.",
   "skillsFetching": "Fetching skills registry...",
   "skillsInstalledHeader": "Installed:",
   "skillsAvailableHeader": "Available:",
   "skillsNoneInstalled": "No skills installed yet.",
   "skillsNoneAvailable": "No skills available in registry.",
-  "skillsInstallHint": "Install with: squados skills install <id>",
+  "skillsInstallHint": "Install with: opensquad skills install <id>",
   "skillsInstalling": "Installing {id}...",
   "skillsInstalled": "✅ Installed: {id}",
   "skillsAlreadyInstalled": "⚠️  {id} is already installed. Reinstall? (y/n) ",
@@ -354,19 +354,19 @@ Add these keys to the JSON (before the closing `}`):
   "skillsUpdateDone": "✅ Updated {count} skill(s).",
   "skillsUpdateNone": "No skills installed to update.",
   "skillsError": "❌ Error: {message}",
-  "skillsUnknownCommand": "Unknown skills command: {cmd}\n  Usage: squados skills list|install|remove|update"
+  "skillsUnknownCommand": "Unknown skills command: {cmd}\n  Usage: opensquad skills list|install|remove|update"
 ```
 
 **Step 2: Add keys to `src/locales/pt-BR.json`**
 
 ```json
-  "skillsNotInitialized": "Instalação SquadOS não encontrada. Execute 'init' primeiro.",
+  "skillsNotInitialized": "Instalação Opensquad não encontrada. Execute 'init' primeiro.",
   "skillsFetching": "Buscando registro de skills...",
   "skillsInstalledHeader": "Instaladas:",
   "skillsAvailableHeader": "Disponíveis:",
   "skillsNoneInstalled": "Nenhuma skill instalada ainda.",
   "skillsNoneAvailable": "Nenhuma skill disponível no registro.",
-  "skillsInstallHint": "Instale com: squados skills install <id>",
+  "skillsInstallHint": "Instale com: opensquad skills install <id>",
   "skillsInstalling": "Instalando {id}...",
   "skillsInstalled": "✅ Instalada: {id}",
   "skillsAlreadyInstalled": "⚠️  {id} já está instalada. Reinstalar? (s/n) ",
@@ -378,19 +378,19 @@ Add these keys to the JSON (before the closing `}`):
   "skillsUpdateDone": "✅ {count} skill(s) atualizada(s).",
   "skillsUpdateNone": "Nenhuma skill instalada para atualizar.",
   "skillsError": "❌ Erro: {message}",
-  "skillsUnknownCommand": "Comando desconhecido: {cmd}\n  Uso: squados skills list|install|remove|update"
+  "skillsUnknownCommand": "Comando desconhecido: {cmd}\n  Uso: opensquad skills list|install|remove|update"
 ```
 
 **Step 3: Add keys to `src/locales/es.json`**
 
 ```json
-  "skillsNotInitialized": "Instalación de SquadOS no encontrada. Ejecuta 'init' primero.",
+  "skillsNotInitialized": "Instalación de Opensquad no encontrada. Ejecuta 'init' primero.",
   "skillsFetching": "Obteniendo registro de skills...",
   "skillsInstalledHeader": "Instaladas:",
   "skillsAvailableHeader": "Disponibles:",
   "skillsNoneInstalled": "No hay skills instaladas todavía.",
   "skillsNoneAvailable": "No hay skills disponibles en el registro.",
-  "skillsInstallHint": "Instala con: squados skills install <id>",
+  "skillsInstallHint": "Instala con: opensquad skills install <id>",
   "skillsInstalling": "Instalando {id}...",
   "skillsInstalled": "✅ Instalada: {id}",
   "skillsAlreadyInstalled": "⚠️  {id} ya está instalada. ¿Reinstalar? (s/n) ",
@@ -402,7 +402,7 @@ Add these keys to the JSON (before the closing `}`):
   "skillsUpdateDone": "✅ {count} skill(s) actualizada(s).",
   "skillsUpdateNone": "No hay skills instaladas para actualizar.",
   "skillsError": "❌ Error: {message}",
-  "skillsUnknownCommand": "Comando desconocido: {cmd}\n  Uso: squados skills list|install|remove|update"
+  "skillsUnknownCommand": "Comando desconocido: {cmd}\n  Uso: opensquad skills list|install|remove|update"
 ```
 
 **Step 4: Add a test to verify all locales have skills keys**
@@ -455,11 +455,11 @@ git commit -m "feat: add i18n strings for skills CLI commands"
 
 ---
 
-## Task 5: Wire up `bin/squados.js` with skills subcommands
+## Task 5: Wire up `bin/opensquad.js` with skills subcommands
 
 **Files:**
 - Create: `src/skills-cli.js`
-- Modify: `bin/squados.js`
+- Modify: `bin/opensquad.js`
 
 **Step 1: Create `src/skills-cli.js`**
 
@@ -486,7 +486,7 @@ async function confirm(question) {
 export async function skillsCli(subcommand, args, targetDir) {
   // Require initialized project
   try {
-    await stat(join(targetDir, '_squados'));
+    await stat(join(targetDir, '_opensquad'));
   } catch {
     await loadLocale('English');
     console.log(`\n  ${t('skillsNotInitialized')}\n`);
@@ -517,7 +517,7 @@ export async function skillsCli(subcommand, args, targetDir) {
 }
 
 async function runList(targetDir) {
-  console.log(`\n  📦 SquadOS Skills Registry\n`);
+  console.log(`\n  📦 Opensquad Skills Registry\n`);
   console.log(`  ${t('skillsFetching')}`);
 
   const [manifest, installed] = await Promise.all([
@@ -554,7 +554,7 @@ async function runList(targetDir) {
 
 async function runInstall(id, targetDir) {
   if (!id) {
-    console.log('\n  Usage: squados skills install <id>\n');
+    console.log('\n  Usage: opensquad skills install <id>\n');
     return;
   }
 
@@ -575,7 +575,7 @@ async function runInstall(id, targetDir) {
 
 async function runRemove(id, targetDir) {
   if (!id) {
-    console.log('\n  Usage: squados skills remove <id>\n');
+    console.log('\n  Usage: opensquad skills remove <id>\n');
     return;
   }
 
@@ -607,7 +607,7 @@ async function runUpdate(targetDir) {
 }
 ```
 
-**Step 2: Update `bin/squados.js`**
+**Step 2: Update `bin/opensquad.js`**
 
 Replace the entire file content with:
 
@@ -638,17 +638,17 @@ if (command === 'init') {
   if (!result.success) process.exit(1);
 } else {
   console.log(`
-  squados — Multi-agent orchestration for Claude Code
+  opensquad — Multi-agent orchestration for Claude Code
 
   Usage:
-    npx squados init                    Initialize SquadOS in current directory
-    npx squados update                  Update SquadOS to the latest version
-    npx squados skills list             Browse available skills
-    npx squados skills install <id>     Install a skill
-    npx squados skills remove <id>      Remove a skill
-    npx squados skills update           Update all installed skills
+    npx opensquad init                    Initialize Opensquad in current directory
+    npx opensquad update                  Update Opensquad to the latest version
+    npx opensquad skills list             Browse available skills
+    npx opensquad skills install <id>     Install a skill
+    npx opensquad skills remove <id>      Remove a skill
+    npx opensquad skills update           Update all installed skills
 
-  Learn more: https://github.com/your-org/squados
+  Learn more: https://github.com/your-org/opensquad
   `);
   process.exit(command ? 1 : 0);
 }
@@ -665,7 +665,7 @@ Expected: all tests PASS (no tests for the CLI orchestration layer since it requ
 **Step 4: Commit**
 
 ```bash
-git add src/skills-cli.js bin/squados.js
+git add src/skills-cli.js bin/opensquad.js
 git commit -m "feat: add skills CLI commands (list/install/remove/update)"
 ```
 
@@ -674,15 +674,15 @@ git commit -m "feat: add skills CLI commands (list/install/remove/update)"
 ## Task 6: Update `SKILL.md` with skills command route and browser flow
 
 **Files:**
-- Modify: `.claude/skills/squados/SKILL.md`
-- Modify: `templates/.claude/skills/squados/SKILL.md` (keep in sync)
+- Modify: `.claude/skills/opensquad/SKILL.md`
+- Modify: `templates/.claude/skills/opensquad/SKILL.md` (keep in sync)
 
 **Step 1: Add skills route to the Command Routing table**
 
-In both SKILL.md files, find the Command Routing table and add this row after the `/squados tools` row:
+In both SKILL.md files, find the Command Routing table and add this row after the `/opensquad tools` row:
 
 ```markdown
-| `/squados skills` | Load Skills Browser → Browse & install skills |
+| `/opensquad skills` | Load Skills Browser → Browse & install skills |
 ```
 
 **Step 2: Add skills to the "More options" submenu**
@@ -701,7 +701,7 @@ Replace it with:
 
 ```markdown
 If the user selects "More options", present a second AskUserQuestion:
-- **Skills** — Browse and install skills from the SquadOS registry
+- **Skills** — Browse and install skills from the Opensquad registry
 - **Tools** — Manage tool integrations (MCP servers, scripts, APIs)
 - **Company profile** — View or update your company information
 - **Settings & Help** — Language, preferences, configuration, and help
@@ -713,9 +713,9 @@ Find the TOOLS section in help text and add a SKILLS section before it:
 
 ```
 SKILLS
-  /squados skills           Browse available skills
-  /squados skills install <id>  Install a skill
-  /squados skills remove <id>   Remove a skill
+  /opensquad skills           Browse available skills
+  /opensquad skills install <id>  Install a skill
+  /opensquad skills remove <id>   Remove a skill
 ```
 
 **Step 4: Add "Loading the Skills Browser" section**
@@ -725,17 +725,17 @@ Add this new section after the "Loading the Tools Engine" section:
 ```markdown
 ## Loading the Skills Browser
 
-When the user selects "Skills" from the menu or types `/squados skills`:
+When the user selects "Skills" from the menu or types `/opensquad skills`:
 
-1. Use WebFetch to fetch `https://raw.githubusercontent.com/squados-ai/squados/main/skills/manifest.json`
+1. Use WebFetch to fetch `https://raw.githubusercontent.com/opensquad-ai/opensquad/main/skills/manifest.json`
    - If fetch fails, show: "Could not reach the skills registry. Check your connection."
-2. Use Glob `.claude/skills/*/` to detect installed skills (exclude the `squados` folder itself)
+2. Use Glob `.claude/skills/*/` to detect installed skills (exclude the `opensquad` folder itself)
 3. Display available skills in two groups: **Installed** (✓) and **Available** (○)
 4. Use AskUserQuestion to let the user choose an action:
    - **Install a skill** — choose from available skills
    - **Remove a skill** — choose from installed skills
    - **Back to menu** — return to main menu
-5. To install: WebFetch `https://raw.githubusercontent.com/squados-ai/squados/main/skills/<id>/SKILL.md`, then Write to `.claude/skills/<id>/SKILL.md`
+5. To install: WebFetch `https://raw.githubusercontent.com/opensquad-ai/opensquad/main/skills/<id>/SKILL.md`, then Write to `.claude/skills/<id>/SKILL.md`
 6. To remove: use Bash to `rm -rf .claude/skills/<id>/`
 7. After any action, confirm and offer to browse again or return to menu
 
@@ -753,8 +753,8 @@ Expected: all tests PASS.
 **Step 6: Commit both SKILL.md files together**
 
 ```bash
-git add .claude/skills/squados/SKILL.md templates/.claude/skills/squados/SKILL.md
-git commit -m "feat: add skills browser to /squados skill (menu + command route + browser flow)"
+git add .claude/skills/opensquad/SKILL.md templates/.claude/skills/opensquad/SKILL.md
+git commit -m "feat: add skills browser to /opensquad skill (menu + command route + browser flow)"
 ```
 
 ---
@@ -827,14 +827,14 @@ git commit -m "feat: add seo-optimizer as first skill in registry"
 
 ## Final: Update REGISTRY_BASE to real GitHub URL
 
-> **Note:** Before shipping, update the placeholder `squados-ai/squados` in `src/skills.js` and `SKILL.md` to the real GitHub owner/repo once it is public.
+> **Note:** Before shipping, update the placeholder `opensquad-ai/opensquad` in `src/skills.js` and `SKILL.md` to the real GitHub owner/repo once it is public.
 
 Files to update:
 - `src/skills.js` — `REGISTRY_BASE` constant
-- `.claude/skills/squados/SKILL.md` — WebFetch URLs in "Loading the Skills Browser"
-- `templates/.claude/skills/squados/SKILL.md` — same
+- `.claude/skills/opensquad/SKILL.md` — WebFetch URLs in "Loading the Skills Browser"
+- `templates/.claude/skills/opensquad/SKILL.md` — same
 
 ```bash
-git add src/skills.js .claude/skills/squados/SKILL.md templates/.claude/skills/squados/SKILL.md
+git add src/skills.js .claude/skills/opensquad/SKILL.md templates/.claude/skills/opensquad/SKILL.md
 git commit -m "chore: update skills registry URL to production GitHub repo"
 ```

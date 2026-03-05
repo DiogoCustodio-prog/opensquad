@@ -1,10 +1,10 @@
-# Update Command (`squados-terminal update`) Implementation Plan
+# Update Command (`opensquad-terminal update`) Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add `npx squados-terminal update` that re-applies the latest system templates to an initialized project while preserving all user data.
+**Goal:** Add `npx opensquad-terminal update` that re-applies the latest system templates to an initialized project while preserving all user data.
 
-**Architecture:** A new `src/update.js` module with an exported `update()` function mirrors the structure of `src/init.js`. It re-copies all template files to the project, skipping three protected directories (`_squados/_memory/`, `_squados/_investigations/`, `squads/`). Version is tracked in `_squados/.squados-version`. Two shared utilities (`getTemplateEntries`, `loadSavedLocale`) are exported from `init.js` and reused.
+**Architecture:** A new `src/update.js` module with an exported `update()` function mirrors the structure of `src/init.js`. It re-copies all template files to the project, skipping three protected directories (`_opensquad/_memory/`, `_opensquad/_investigations/`, `squads/`). Version is tracked in `_opensquad/.opensquad-version`. Two shared utilities (`getTemplateEntries`, `loadSavedLocale`) are exported from `init.js` and reused.
 
 **Tech Stack:** Node.js 20+ ESM, `node:fs/promises`, `node:path`, `node:test` (built-in test runner)
 
@@ -13,12 +13,12 @@
 ### Task 1: Add version file to templates
 
 **Files:**
-- Create: `templates/_squados/.squados-version`
+- Create: `templates/_opensquad/.opensquad-version`
 - Modify: `tests/init.test.js`
 
 **Step 1: Create the version file**
 
-Create `templates/_squados/.squados-version` with exactly this content (single line, no trailing newline):
+Create `templates/_opensquad/.opensquad-version` with exactly this content (single line, no trailing newline):
 
 ```
 0.1.0
@@ -29,13 +29,13 @@ Create `templates/_squados/.squados-version` with exactly this content (single l
 Add to `tests/init.test.js`:
 
 ```js
-test('init creates .squados-version file', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+test('init creates .opensquad-version file', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
 
-    const version = await readFile(join(tempDir, '_squados', '.squados-version'), 'utf-8');
+    const version = await readFile(join(tempDir, '_opensquad', '.opensquad-version'), 'utf-8');
     assert.ok(version.trim().length > 0);
   } finally {
     await rm(tempDir, { recursive: true, force: true });
@@ -49,11 +49,11 @@ test('init creates .squados-version file', async () => {
 node --test tests/init.test.js
 ```
 
-Expected: FAIL — `ENOENT: no such file or directory ... .squados-version`
+Expected: FAIL — `ENOENT: no such file or directory ... .opensquad-version`
 
 **Step 4: Run test to verify it passes**
 
-Since `copyTemplates()` in `init.js` recursively copies all template files, adding the file to `templates/_squados/` is all that's needed. No code changes required.
+Since `copyTemplates()` in `init.js` recursively copies all template files, adding the file to `templates/_opensquad/` is all that's needed. No code changes required.
 
 ```bash
 node --test tests/init.test.js
@@ -64,8 +64,8 @@ Expected: all tests PASS
 **Step 5: Commit**
 
 ```bash
-git add templates/_squados/.squados-version tests/init.test.js
-git commit -m "feat: add .squados-version tracking file to templates"
+git add templates/_opensquad/.opensquad-version tests/init.test.js
+git commit -m "feat: add .opensquad-version tracking file to templates"
 ```
 
 ---
@@ -177,98 +177,98 @@ Add the following to each locale file (add at the end of the JSON object, before
 
 **`src/locales/en.json`** — add:
 ```json
-  "updateNotInitialized": "No SquadOS installation found. Run 'init' first.",
-  "updateStarting": "Updating SquadOS {old} → {new}...",
-  "updateStartingUnknown": "Updating SquadOS (unknown version) → {new}...",
+  "updateNotInitialized": "No Opensquad installation found. Run 'init' first.",
+  "updateStarting": "Updating Opensquad {old} → {new}...",
+  "updateStartingUnknown": "Updating Opensquad (unknown version) → {new}...",
   "updatedFile": "📄 Updated {path}",
-  "updateSuccess": "✅ SquadOS {version} installed successfully!",
+  "updateSuccess": "✅ Opensquad {version} installed successfully!",
   "updatePreserved": "✓ Preserved: _memory/, _investigations/, squads/",
   "updateFileCount": "✓ Updated: {count} system files",
-  "updateLatestHint": "💡 Tip: Use 'npx squados-terminal@latest update' to always get the newest version."
+  "updateLatestHint": "💡 Tip: Use 'npx opensquad-terminal@latest update' to always get the newest version."
 ```
 
 **`src/locales/pt-BR.json`** — add:
 ```json
-  "updateNotInitialized": "Nenhuma instalação do SquadOS encontrada. Execute 'init' primeiro.",
-  "updateStarting": "Atualizando SquadOS {old} → {new}...",
-  "updateStartingUnknown": "Atualizando SquadOS (versão desconhecida) → {new}...",
+  "updateNotInitialized": "Nenhuma instalação do Opensquad encontrada. Execute 'init' primeiro.",
+  "updateStarting": "Atualizando Opensquad {old} → {new}...",
+  "updateStartingUnknown": "Atualizando Opensquad (versão desconhecida) → {new}...",
   "updatedFile": "📄 Atualizado {path}",
-  "updateSuccess": "✅ SquadOS {version} instalado com sucesso!",
+  "updateSuccess": "✅ Opensquad {version} instalado com sucesso!",
   "updatePreserved": "✓ Preservado: _memory/, _investigations/, squads/",
   "updateFileCount": "✓ Atualizados: {count} arquivos do sistema",
-  "updateLatestHint": "💡 Dica: Use 'npx squados-terminal@latest update' para sempre obter a versão mais recente."
+  "updateLatestHint": "💡 Dica: Use 'npx opensquad-terminal@latest update' para sempre obter a versão mais recente."
 ```
 
 **`src/locales/es.json`** — add:
 ```json
-  "updateNotInitialized": "No se encontró ninguna instalación de SquadOS. Ejecute 'init' primero.",
-  "updateStarting": "Actualizando SquadOS {old} → {new}...",
-  "updateStartingUnknown": "Actualizando SquadOS (versión desconocida) → {new}...",
+  "updateNotInitialized": "No se encontró ninguna instalación de Opensquad. Ejecute 'init' primero.",
+  "updateStarting": "Actualizando Opensquad {old} → {new}...",
+  "updateStartingUnknown": "Actualizando Opensquad (versión desconocida) → {new}...",
   "updatedFile": "📄 Actualizado {path}",
-  "updateSuccess": "✅ ¡SquadOS {version} instalado correctamente!",
+  "updateSuccess": "✅ ¡Opensquad {version} instalado correctamente!",
   "updatePreserved": "✓ Preservado: _memory/, _investigations/, squads/",
   "updateFileCount": "✓ Actualizados: {count} archivos del sistema",
-  "updateLatestHint": "💡 Consejo: Use 'npx squados-terminal@latest update' para obtener siempre la versión más reciente."
+  "updateLatestHint": "💡 Consejo: Use 'npx opensquad-terminal@latest update' para obtener siempre la versión más reciente."
 ```
 
 **`src/locales/fr.json`** — add:
 ```json
-  "updateNotInitialized": "Aucune installation SquadOS trouvée. Exécutez 'init' d'abord.",
-  "updateStarting": "Mise à jour de SquadOS {old} → {new}...",
-  "updateStartingUnknown": "Mise à jour de SquadOS (version inconnue) → {new}...",
+  "updateNotInitialized": "Aucune installation Opensquad trouvée. Exécutez 'init' d'abord.",
+  "updateStarting": "Mise à jour de Opensquad {old} → {new}...",
+  "updateStartingUnknown": "Mise à jour de Opensquad (version inconnue) → {new}...",
   "updatedFile": "📄 Mis à jour {path}",
-  "updateSuccess": "✅ SquadOS {version} installé avec succès !",
+  "updateSuccess": "✅ Opensquad {version} installé avec succès !",
   "updatePreserved": "✓ Préservé : _memory/, _investigations/, squads/",
   "updateFileCount": "✓ Mis à jour : {count} fichiers système",
-  "updateLatestHint": "💡 Conseil : Utilisez 'npx squados-terminal@latest update' pour toujours obtenir la dernière version."
+  "updateLatestHint": "💡 Conseil : Utilisez 'npx opensquad-terminal@latest update' pour toujours obtenir la dernière version."
 ```
 
 **`src/locales/de.json`** — add:
 ```json
-  "updateNotInitialized": "Keine SquadOS-Installation gefunden. Führen Sie zuerst 'init' aus.",
-  "updateStarting": "SquadOS wird aktualisiert {old} → {new}...",
-  "updateStartingUnknown": "SquadOS wird aktualisiert (unbekannte Version) → {new}...",
+  "updateNotInitialized": "Keine Opensquad-Installation gefunden. Führen Sie zuerst 'init' aus.",
+  "updateStarting": "Opensquad wird aktualisiert {old} → {new}...",
+  "updateStartingUnknown": "Opensquad wird aktualisiert (unbekannte Version) → {new}...",
   "updatedFile": "📄 Aktualisiert {path}",
-  "updateSuccess": "✅ SquadOS {version} erfolgreich installiert!",
+  "updateSuccess": "✅ Opensquad {version} erfolgreich installiert!",
   "updatePreserved": "✓ Erhalten: _memory/, _investigations/, squads/",
   "updateFileCount": "✓ Aktualisiert: {count} Systemdateien",
-  "updateLatestHint": "💡 Tipp: Verwenden Sie 'npx squados-terminal@latest update', um immer die neueste Version zu erhalten."
+  "updateLatestHint": "💡 Tipp: Verwenden Sie 'npx opensquad-terminal@latest update', um immer die neueste Version zu erhalten."
 ```
 
 **`src/locales/it.json`** — add:
 ```json
-  "updateNotInitialized": "Nessuna installazione SquadOS trovata. Eseguire prima 'init'.",
-  "updateStarting": "Aggiornamento SquadOS {old} → {new}...",
-  "updateStartingUnknown": "Aggiornamento SquadOS (versione sconosciuta) → {new}...",
+  "updateNotInitialized": "Nessuna installazione Opensquad trovata. Eseguire prima 'init'.",
+  "updateStarting": "Aggiornamento Opensquad {old} → {new}...",
+  "updateStartingUnknown": "Aggiornamento Opensquad (versione sconosciuta) → {new}...",
   "updatedFile": "📄 Aggiornato {path}",
-  "updateSuccess": "✅ SquadOS {version} installato con successo!",
+  "updateSuccess": "✅ Opensquad {version} installato con successo!",
   "updatePreserved": "✓ Preservato: _memory/, _investigations/, squads/",
   "updateFileCount": "✓ Aggiornati: {count} file di sistema",
-  "updateLatestHint": "💡 Suggerimento: Usa 'npx squados-terminal@latest update' per ottenere sempre la versione più recente."
+  "updateLatestHint": "💡 Suggerimento: Usa 'npx opensquad-terminal@latest update' per ottenere sempre la versione più recente."
 ```
 
 **`src/locales/ja.json`** — add:
 ```json
-  "updateNotInitialized": "SquadOSのインストールが見つかりません。まず'init'を実行してください。",
-  "updateStarting": "SquadOS {old} → {new} に更新中...",
-  "updateStartingUnknown": "SquadOS（バージョン不明）→ {new} に更新中...",
+  "updateNotInitialized": "Opensquadのインストールが見つかりません。まず'init'を実行してください。",
+  "updateStarting": "Opensquad {old} → {new} に更新中...",
+  "updateStartingUnknown": "Opensquad（バージョン不明）→ {new} に更新中...",
   "updatedFile": "📄 更新しました {path}",
-  "updateSuccess": "✅ SquadOS {version} のインストールが完了しました！",
+  "updateSuccess": "✅ Opensquad {version} のインストールが完了しました！",
   "updatePreserved": "✓ 保持: _memory/, _investigations/, squads/",
   "updateFileCount": "✓ 更新済み: {count} 個のシステムファイル",
-  "updateLatestHint": "💡 ヒント: 常に最新バージョンを入手するには 'npx squados-terminal@latest update' を使用してください。"
+  "updateLatestHint": "💡 ヒント: 常に最新バージョンを入手するには 'npx opensquad-terminal@latest update' を使用してください。"
 ```
 
 **`src/locales/zh.json`** — add:
 ```json
-  "updateNotInitialized": "未找到 SquadOS 安装。请先运行 'init'。",
-  "updateStarting": "正在更新 SquadOS {old} → {new}...",
-  "updateStartingUnknown": "正在更新 SquadOS（未知版本）→ {new}...",
+  "updateNotInitialized": "未找到 Opensquad 安装。请先运行 'init'。",
+  "updateStarting": "正在更新 Opensquad {old} → {new}...",
+  "updateStartingUnknown": "正在更新 Opensquad（未知版本）→ {new}...",
   "updatedFile": "📄 已更新 {path}",
-  "updateSuccess": "✅ SquadOS {version} 安装成功！",
+  "updateSuccess": "✅ Opensquad {version} 安装成功！",
   "updatePreserved": "✓ 已保留：_memory/、_investigations/、squads/",
   "updateFileCount": "✓ 已更新：{count} 个系统文件",
-  "updateLatestHint": "💡 提示：使用 'npx squados-terminal@latest update' 以始终获取最新版本。"
+  "updateLatestHint": "💡 提示：使用 'npx opensquad-terminal@latest update' 以始终获取最新版本。"
 ```
 
 **Step 4: Run tests to verify they pass**
@@ -308,7 +308,7 @@ import { init } from '../src/init.js';
 import { update } from '../src/update.js';
 
 test('update returns failure when not initialized', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     const result = await update(tempDir);
@@ -319,7 +319,7 @@ test('update returns failure when not initialized', async () => {
 });
 
 test('update overwrites system files', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -328,7 +328,7 @@ test('update overwrites system files', async () => {
     await update(tempDir);
 
     const content = await readFile(join(tempDir, 'CLAUDE.md'), 'utf-8');
-    assert.ok(content.includes('SquadOS'));
+    assert.ok(content.includes('Opensquad'));
     assert.ok(!content.includes('garbage content'));
   } finally {
     await rm(tempDir, { recursive: true, force: true });
@@ -336,12 +336,12 @@ test('update overwrites system files', async () => {
 });
 
 test('update preserves _memory contents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
     await writeFile(
-      join(tempDir, '_squados', '_memory', 'company.md'),
+      join(tempDir, '_opensquad', '_memory', 'company.md'),
       'My Company Info',
       'utf-8'
     );
@@ -349,7 +349,7 @@ test('update preserves _memory contents', async () => {
     await update(tempDir);
 
     const content = await readFile(
-      join(tempDir, '_squados', '_memory', 'company.md'),
+      join(tempDir, '_opensquad', '_memory', 'company.md'),
       'utf-8'
     );
     assert.equal(content, 'My Company Info');
@@ -359,12 +359,12 @@ test('update preserves _memory contents', async () => {
 });
 
 test('update preserves _investigations contents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
     await writeFile(
-      join(tempDir, '_squados', '_investigations', 'profile-analysis.md'),
+      join(tempDir, '_opensquad', '_investigations', 'profile-analysis.md'),
       'investigation data',
       'utf-8'
     );
@@ -372,7 +372,7 @@ test('update preserves _investigations contents', async () => {
     await update(tempDir);
 
     const content = await readFile(
-      join(tempDir, '_squados', '_investigations', 'profile-analysis.md'),
+      join(tempDir, '_opensquad', '_investigations', 'profile-analysis.md'),
       'utf-8'
     );
     assert.equal(content, 'investigation data');
@@ -382,7 +382,7 @@ test('update preserves _investigations contents', async () => {
 });
 
 test('update preserves squads contents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -405,8 +405,8 @@ test('update preserves squads contents', async () => {
   }
 });
 
-test('update writes new version to .squados-version', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+test('update writes new version to .opensquad-version', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -414,7 +414,7 @@ test('update writes new version to .squados-version', async () => {
     await update(tempDir);
 
     const version = await readFile(
-      join(tempDir, '_squados', '.squados-version'),
+      join(tempDir, '_opensquad', '.opensquad-version'),
       'utf-8'
     );
     assert.ok(version.trim().length > 0);
@@ -424,12 +424,12 @@ test('update writes new version to .squados-version', async () => {
   }
 });
 
-test('update succeeds without existing .squados-version (legacy install)', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+test('update succeeds without existing .opensquad-version (legacy install)', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
-    await rm(join(tempDir, '_squados', '.squados-version'), { force: true });
+    await rm(join(tempDir, '_opensquad', '.opensquad-version'), { force: true });
 
     const result = await update(tempDir);
     assert.equal(result.success, true);
@@ -439,7 +439,7 @@ test('update succeeds without existing .squados-version (legacy install)', async
 });
 
 test('update returns success when initialized', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -472,8 +472,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
 
 const PROTECTED_PATHS = [
-  '_squados/_memory',
-  '_squados/_investigations',
+  '_opensquad/_memory',
+  '_opensquad/_investigations',
   'squads',
 ];
 
@@ -485,11 +485,11 @@ function isProtected(relativePath) {
 }
 
 export async function update(targetDir) {
-  console.log('\n  🔄 SquadOS — Update\n');
+  console.log('\n  🔄 Opensquad — Update\n');
 
   // 1. Check initialized
   try {
-    await stat(join(targetDir, '_squados'));
+    await stat(join(targetDir, '_opensquad'));
   } catch {
     await loadLocale('English');
     console.log(`  ${t('updateNotInitialized')}`);
@@ -503,14 +503,14 @@ export async function update(targetDir) {
   let currentVersion = null;
   try {
     currentVersion = (
-      await readFile(join(targetDir, '_squados', '.squados-version'), 'utf-8')
+      await readFile(join(targetDir, '_opensquad', '.opensquad-version'), 'utf-8')
     ).trim();
   } catch {
     // Legacy install — no version file
   }
 
   const newVersion = (
-    await readFile(join(TEMPLATES_DIR, '_squados', '.squados-version'), 'utf-8')
+    await readFile(join(TEMPLATES_DIR, '_opensquad', '.opensquad-version'), 'utf-8')
   ).trim();
 
   // 4. Announce
@@ -564,14 +564,14 @@ git commit -m "feat: implement update() function with protected-path copy logic"
 
 ---
 
-### Task 5: Wire `update` command in `bin/squados.js`
+### Task 5: Wire `update` command in `bin/opensquad.js`
 
 **Files:**
-- Modify: `bin/squados.js`
+- Modify: `bin/opensquad.js`
 
 **Step 1: Update the CLI entry point**
 
-Replace the content of `bin/squados.js` with:
+Replace the content of `bin/opensquad.js` with:
 
 ```js
 #!/usr/bin/env node
@@ -594,13 +594,13 @@ if (command === 'init') {
   if (!result.success) process.exit(1);
 } else {
   console.log(`
-  squados-terminal — Multi-agent orchestration for Claude Code
+  opensquad-terminal — Multi-agent orchestration for Claude Code
 
   Usage:
-    npx squados-terminal init      Initialize SquadOS in current directory
-    npx squados-terminal update    Update SquadOS to the latest version
+    npx opensquad-terminal init      Initialize Opensquad in current directory
+    npx opensquad-terminal update    Update Opensquad to the latest version
 
-  Learn more: https://github.com/your-org/squados-terminal
+  Learn more: https://github.com/your-org/opensquad-terminal
   `);
   process.exit(command ? 1 : 0);
 }
@@ -616,32 +616,32 @@ Expected: all tests PASS
 
 **Step 3: Smoke test the command manually**
 
-From the project root (which has an initialized `_squados/`):
+From the project root (which has an initialized `_opensquad/`):
 
 ```bash
-node bin/squados.js update
+node bin/opensquad.js update
 ```
 
 Expected output:
 ```
-  🔄 SquadOS — Update
+  🔄 Opensquad — Update
 
-  Updating SquadOS v0.1.0 → v0.1.0...
-  📄 Updated _squados/.squados-version
-  📄 Updated _squados/core/...
+  Updating Opensquad v0.1.0 → v0.1.0...
+  📄 Updated _opensquad/.opensquad-version
+  📄 Updated _opensquad/core/...
   ...
 
   ✓ Updated: N system files
   ✓ Preserved: _memory/, _investigations/, squads/
-  ✅ SquadOS v0.1.0 installed successfully!
+  ✅ Opensquad v0.1.0 installed successfully!
 
-  💡 Tip: Use 'npx squados-terminal@latest update' to always get the newest version.
+  💡 Tip: Use 'npx opensquad-terminal@latest update' to always get the newest version.
 ```
 
 **Step 4: Test the "not initialized" error path**
 
 ```bash
-mkdir /tmp/squados-empty && cd /tmp/squados-empty && node /path/to/squados/bin/squados.js update
+mkdir /tmp/opensquad-empty && cd /tmp/opensquad-empty && node /path/to/opensquad/bin/opensquad.js update
 ```
 
 Expected: prints error message and exits with code 1.
@@ -649,6 +649,6 @@ Expected: prints error message and exits with code 1.
 **Step 5: Commit**
 
 ```bash
-git add bin/squados.js
+git add bin/opensquad.js
 git commit -m "feat: wire update command in CLI entry point"
 ```

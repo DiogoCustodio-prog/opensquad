@@ -7,7 +7,7 @@ import { listAvailable as listAvailableSkills, listInstalled as listInstalledSki
 
 async function loadSavedIdes(targetDir) {
   try {
-    const prefsPath = join(targetDir, '_squados', '_memory', 'preferences.md');
+    const prefsPath = join(targetDir, '_opensquad', '_memory', 'preferences.md');
     const content = await readFile(prefsPath, 'utf-8');
     const match = content.match(/\*\*IDEs:\*\*\s*(.+)/);
     if (match) {
@@ -23,8 +23,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = join(__dirname, '..', 'templates');
 
 const PROTECTED_PATHS = [
-  '_squados/_memory',
-  '_squados/_investigations',
+  '_opensquad/_memory',
+  '_opensquad/_investigations',
   'agents',
   'squads',
 ];
@@ -37,11 +37,11 @@ function isProtected(relativePath) {
 }
 
 export async function update(targetDir) {
-  console.log('\n  🔄 SquadOS — Update\n');
+  console.log('\n  🔄 Opensquad — Update\n');
 
   // 1. Check initialized
   try {
-    await stat(join(targetDir, '_squados'));
+    await stat(join(targetDir, '_opensquad'));
   } catch {
     await loadLocale('English');
     console.log(`  ${t('updateNotInitialized')}`);
@@ -55,14 +55,14 @@ export async function update(targetDir) {
   let currentVersion = null;
   try {
     currentVersion = (
-      await readFile(join(targetDir, '_squados', '.squados-version'), 'utf-8')
+      await readFile(join(targetDir, '_opensquad', '.opensquad-version'), 'utf-8')
     ).trim();
   } catch {
     // Legacy install — no version file
   }
 
   const newVersion = (
-    await readFile(join(TEMPLATES_DIR, '_squados', '.squados-version'), 'utf-8')
+    await readFile(join(TEMPLATES_DIR, '_opensquad', '.opensquad-version'), 'utf-8')
   ).trim();
 
   // 4. Announce
@@ -117,7 +117,7 @@ export async function update(targetDir) {
   const availableSkills = await listAvailableSkills();
   const installedSkills = await listInstalledSkills(targetDir);
   for (const id of availableSkills) {
-    if (id === 'squados-skill-creator') continue;
+    if (id === 'opensquad-skill-creator') continue;
     if (installedSkills.includes(id)) continue;
     const meta = await getSkillMeta(id);
     if (!meta) continue;

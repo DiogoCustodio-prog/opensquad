@@ -18,7 +18,7 @@ async function confirm(question) {
 export async function skillsCli(subcommand, args, targetDir) {
   // Require initialized project
   try {
-    await stat(join(targetDir, '_squados'));
+    await stat(join(targetDir, '_opensquad'));
   } catch {
     await loadLocale('English');
     console.log(`\n  ${t('skillsNotInitialized')}\n`);
@@ -53,7 +53,7 @@ export async function skillsCli(subcommand, args, targetDir) {
 }
 
 async function runList(targetDir) {
-  console.log(`\n  SquadOS Skills\n`);
+  console.log(`\n  Opensquad Skills\n`);
 
   const installed = await listInstalled(targetDir);
 

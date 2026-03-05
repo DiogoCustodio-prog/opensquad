@@ -5,7 +5,7 @@
 
 ## Overview
 
-During `squados init`, the user is asked which IDEs they want to install SquadOS support for. Currently, only a single IDE can be selected and only Claude Code is enabled. This change adds multi-selection and enables three new IDEs: Open Code, Codex (OpenAI), and Antigravity.
+During `opensquad init`, the user is asked which IDEs they want to install Opensquad support for. Currently, only a single IDE can be selected and only Claude Code is enabled. This change adds multi-selection and enables three new IDEs: Open Code, Codex (OpenAI), and Antigravity.
 
 ## UI Approach
 
@@ -17,7 +17,7 @@ The existing `choose()` method is left unchanged to avoid breaking other usage.
 
 | IDE | value | File installed | Location |
 |-----|-------|---------------|----------|
-| Claude Code | `claude-code` | `SKILL.md` + `CLAUDE.md` | `.claude/skills/squados/SKILL.md` + root |
+| Claude Code | `claude-code` | `SKILL.md` + `CLAUDE.md` | `.claude/skills/opensquad/SKILL.md` + root |
 | Open Code | `opencode` | `AGENTS.md` | repo root |
 | Codex (OpenAI) | `codex` | `AGENTS.md` | repo root (shared if both selected) |
 | Antigravity | `antigravity` | `rules.md` | `.antigravity/rules.md` |
@@ -33,12 +33,12 @@ IDE-specific files are moved out of the generic `templates/` root into `template
 
 ```
 templates/
-  _squados/                                  ← always copied (unchanged)
+  _opensquad/                                  ← always copied (unchanged)
   squads/                                    ← always copied (unchanged)
   ide-templates/                             ← NEW — skipped by copyCommonTemplates()
     claude-code/
       CLAUDE.md                              ← MOVED from templates/CLAUDE.md
-      .claude/skills/squados/SKILL.md        ← MOVED from templates/.claude/
+      .claude/skills/opensquad/SKILL.md        ← MOVED from templates/.claude/
     opencode/
       AGENTS.md                              ← NEW
     codex/
@@ -51,7 +51,7 @@ templates/
 
 `AGENTS.md` and `.antigravity/rules.md` contain the same instructions as `SKILL.md` but adapted for non-Claude-Code IDEs:
 - No YAML frontmatter (Claude Code-specific)
-- Title changed to `# SquadOS Instructions`
+- Title changed to `# Opensquad Instructions`
 - Otherwise same content: commands, workflows, onboarding steps
 
 ## Changes to `src/init.js`
@@ -69,7 +69,7 @@ templates/
 ```
   Next steps:
 
-  Claude Code:  type /squados to get started
+  Claude Code:  type /opensquad to get started
   Open Code:    see AGENTS.md in your project root
   Codex:        see AGENTS.md in your project root
   Antigravity:  see .antigravity/rules.md

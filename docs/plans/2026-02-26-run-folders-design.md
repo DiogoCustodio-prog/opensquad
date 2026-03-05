@@ -77,8 +77,8 @@ The Pipeline Runner creates a `{run-folder}` variable after step 1 completes, po
 ## Files to Modify
 
 ### Core (runner)
-- `_squados/core/runner.pipeline.md` — Add "Run Folder Creation" section after step execution rules
-- `templates/_squados/core/runner.pipeline.md` — Mirror same change
+- `_opensquad/core/runner.pipeline.md` — Add "Run Folder Creation" section after step execution rules
+- `templates/_opensquad/core/runner.pipeline.md` — Mirror same change
 
 ### Step files (existing squad)
 - `squads/instagram-content/pipeline/steps/step-01-research.md` — Keep `outputFile` as staging path (no change)
@@ -96,7 +96,7 @@ The Pipeline Runner creates a `{run-folder}` variable after step 1 completes, po
 - `templates/squads/instagram-content/squad.yaml` (if exists) — Mirror
 
 ### Architect
-- `_squados/core/architect.agent.yaml` — Update squad creation instructions re: output structure
+- `_opensquad/core/architect.agent.yaml` — Update squad creation instructions re: output structure
 
 ### Pipeline State
 - Add `run-folder-path` to tracked pipeline state in runner

@@ -9,8 +9,8 @@ version: "1.0.0"
 created: "2026-03-03"
 mode: "alta-performance"
 
-company: "_squados/_memory/company.md"
-preferences: "_squados/_memory/preferences.md"
+company: "_opensquad/_memory/company.md"
+preferences: "_opensquad/_memory/preferences.md"
 memory: "_memory/memories.md"
 
 target_audience: "Audiência geral com foco em interessados em tecnologia e IA"

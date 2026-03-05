@@ -2,22 +2,22 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Replace Figma MCP with Canva Connect MCP in the SquadOS tools registry so the Architect auto-suggests Canva for design/content squads.
+**Goal:** Replace Figma MCP with Canva Connect MCP in the Opensquad tools registry so the Architect auto-suggests Canva for design/content squads.
 
 **Architecture:** Swap the Figma tool definition YAML for a Canva one in both the live registry and the template registry. Update the commented example in the Architect agent. No structural changes to the tools engine — the existing category-based discovery handles the rest.
 
-**Tech Stack:** YAML tool definitions, SquadOS tools engine
+**Tech Stack:** YAML tool definitions, Opensquad tools engine
 
 ---
 
 ### Task 1: Create `canva.tool.yaml` in live registry
 
 **Files:**
-- Create: `_squados/tools/registry/canva.tool.yaml`
+- Create: `_opensquad/tools/registry/canva.tool.yaml`
 
 **Step 1: Write the Canva tool definition**
 
-Create `_squados/tools/registry/canva.tool.yaml` with this exact content:
+Create `_opensquad/tools/registry/canva.tool.yaml` with this exact content:
 
 ```yaml
 name: Canva Connect
@@ -61,13 +61,13 @@ useful_for: [content-design, brand-guidelines, visual-content, social-media-cont
 
 **Step 2: Verify file was created correctly**
 
-Run: `cat _squados/tools/registry/canva.tool.yaml`
+Run: `cat _opensquad/tools/registry/canva.tool.yaml`
 Expected: The YAML above, with `id: canva` and `url: "https://mcp.canva.com/mcp"`
 
 **Step 3: Commit**
 
 ```bash
-git add _squados/tools/registry/canva.tool.yaml
+git add _opensquad/tools/registry/canva.tool.yaml
 git commit -m "feat: add Canva Connect MCP tool to registry"
 ```
 
@@ -76,23 +76,23 @@ git commit -m "feat: add Canva Connect MCP tool to registry"
 ### Task 2: Delete `figma.tool.yaml` from live registry
 
 **Files:**
-- Delete: `_squados/tools/registry/figma.tool.yaml`
+- Delete: `_opensquad/tools/registry/figma.tool.yaml`
 
 **Step 1: Delete the Figma tool definition**
 
 ```bash
-rm _squados/tools/registry/figma.tool.yaml
+rm _opensquad/tools/registry/figma.tool.yaml
 ```
 
 **Step 2: Verify deletion**
 
-Run: `ls _squados/tools/registry/`
+Run: `ls _opensquad/tools/registry/`
 Expected: `apify.tool.yaml` and `canva.tool.yaml` only (no `figma.tool.yaml`)
 
 **Step 3: Commit**
 
 ```bash
-git add _squados/tools/registry/figma.tool.yaml
+git add _opensquad/tools/registry/figma.tool.yaml
 git commit -m "chore: remove Figma tool from registry (replaced by Canva)"
 ```
 
@@ -101,18 +101,18 @@ git commit -m "chore: remove Figma tool from registry (replaced by Canva)"
 ### Task 3: Create `canva.tool.yaml` in template registry
 
 **Files:**
-- Create: `templates/_squados/tools/registry/canva.tool.yaml`
+- Create: `templates/_opensquad/tools/registry/canva.tool.yaml`
 
 **Step 1: Copy the Canva tool definition to templates**
 
 ```bash
-cp _squados/tools/registry/canva.tool.yaml templates/_squados/tools/registry/canva.tool.yaml
+cp _opensquad/tools/registry/canva.tool.yaml templates/_opensquad/tools/registry/canva.tool.yaml
 ```
 
 **Step 2: Verify the copy is identical**
 
 ```bash
-diff _squados/tools/registry/canva.tool.yaml templates/_squados/tools/registry/canva.tool.yaml
+diff _opensquad/tools/registry/canva.tool.yaml templates/_opensquad/tools/registry/canva.tool.yaml
 ```
 
 Expected: No output (files are identical)
@@ -120,7 +120,7 @@ Expected: No output (files are identical)
 **Step 3: Commit**
 
 ```bash
-git add templates/_squados/tools/registry/canva.tool.yaml
+git add templates/_opensquad/tools/registry/canva.tool.yaml
 git commit -m "feat: add Canva Connect MCP tool to template registry"
 ```
 
@@ -129,23 +129,23 @@ git commit -m "feat: add Canva Connect MCP tool to template registry"
 ### Task 4: Delete `figma.tool.yaml` from template registry
 
 **Files:**
-- Delete: `templates/_squados/tools/registry/figma.tool.yaml`
+- Delete: `templates/_opensquad/tools/registry/figma.tool.yaml`
 
 **Step 1: Delete the template Figma tool definition**
 
 ```bash
-rm templates/_squados/tools/registry/figma.tool.yaml
+rm templates/_opensquad/tools/registry/figma.tool.yaml
 ```
 
 **Step 2: Verify deletion**
 
-Run: `ls templates/_squados/tools/registry/`
+Run: `ls templates/_opensquad/tools/registry/`
 Expected: `apify.tool.yaml` and `canva.tool.yaml` only
 
 **Step 3: Commit**
 
 ```bash
-git add templates/_squados/tools/registry/figma.tool.yaml
+git add templates/_opensquad/tools/registry/figma.tool.yaml
 git commit -m "chore: remove Figma tool from template registry"
 ```
 
@@ -154,12 +154,12 @@ git commit -m "chore: remove Figma tool from template registry"
 ### Task 5: Update Architect agent — comment example
 
 **Files:**
-- Modify: `_squados/core/architect.agent.yaml:420`
-- Modify: `templates/_squados/core/architect.agent.yaml:420`
+- Modify: `_opensquad/core/architect.agent.yaml:420`
+- Modify: `templates/_opensquad/core/architect.agent.yaml:420`
 
 **Step 1: Update the live architect file**
 
-In `_squados/core/architect.agent.yaml`, find line 420:
+In `_opensquad/core/architect.agent.yaml`, find line 420:
 
 ```yaml
              # - figma
@@ -173,7 +173,7 @@ Replace with:
 
 **Step 2: Update the template architect file**
 
-In `templates/_squados/core/architect.agent.yaml`, find the same line:
+In `templates/_opensquad/core/architect.agent.yaml`, find the same line:
 
 ```yaml
              # - figma
@@ -187,16 +187,16 @@ Replace with:
 
 **Step 3: Verify both changes**
 
-Run: `grep -n "canva\|figma" _squados/core/architect.agent.yaml`
+Run: `grep -n "canva\|figma" _opensquad/core/architect.agent.yaml`
 Expected: One line with `# - canva`, zero lines with `figma`
 
-Run: `grep -n "canva\|figma" templates/_squados/core/architect.agent.yaml`
+Run: `grep -n "canva\|figma" templates/_opensquad/core/architect.agent.yaml`
 Expected: Same result
 
 **Step 4: Commit**
 
 ```bash
-git add _squados/core/architect.agent.yaml templates/_squados/core/architect.agent.yaml
+git add _opensquad/core/architect.agent.yaml templates/_opensquad/core/architect.agent.yaml
 git commit -m "chore: update Architect tool example from Figma to Canva"
 ```
 
@@ -215,8 +215,8 @@ Expected: No results (all figma references in active code are gone; only docs/pl
 **Step 2: Verify registry is correct**
 
 ```bash
-ls _squados/tools/registry/
-ls templates/_squados/tools/registry/
+ls _opensquad/tools/registry/
+ls templates/_opensquad/tools/registry/
 ```
 
 Expected: Both contain `apify.tool.yaml` and `canva.tool.yaml`

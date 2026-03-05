@@ -7,7 +7,7 @@ import { init } from '../src/init.js';
 import { update } from '../src/update.js';
 
 test('update returns failure when not initialized', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     const result = await update(tempDir);
@@ -18,7 +18,7 @@ test('update returns failure when not initialized', async () => {
 });
 
 test('update overwrites system files', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -27,7 +27,7 @@ test('update overwrites system files', async () => {
     await update(tempDir);
 
     const content = await readFile(join(tempDir, 'CLAUDE.md'), 'utf-8');
-    assert.ok(content.includes('SquadOS'));
+    assert.ok(content.includes('Opensquad'));
     assert.ok(!content.includes('garbage content'));
   } finally {
     await rm(tempDir, { recursive: true, force: true });
@@ -35,12 +35,12 @@ test('update overwrites system files', async () => {
 });
 
 test('update preserves _memory contents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
     await writeFile(
-      join(tempDir, '_squados', '_memory', 'company.md'),
+      join(tempDir, '_opensquad', '_memory', 'company.md'),
       'My Company Info',
       'utf-8'
     );
@@ -48,7 +48,7 @@ test('update preserves _memory contents', async () => {
     await update(tempDir);
 
     const content = await readFile(
-      join(tempDir, '_squados', '_memory', 'company.md'),
+      join(tempDir, '_opensquad', '_memory', 'company.md'),
       'utf-8'
     );
     assert.equal(content, 'My Company Info');
@@ -58,12 +58,12 @@ test('update preserves _memory contents', async () => {
 });
 
 test('update preserves _investigations contents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
     await writeFile(
-      join(tempDir, '_squados', '_investigations', 'profile-analysis.md'),
+      join(tempDir, '_opensquad', '_investigations', 'profile-analysis.md'),
       'investigation data',
       'utf-8'
     );
@@ -71,7 +71,7 @@ test('update preserves _investigations contents', async () => {
     await update(tempDir);
 
     const content = await readFile(
-      join(tempDir, '_squados', '_investigations', 'profile-analysis.md'),
+      join(tempDir, '_opensquad', '_investigations', 'profile-analysis.md'),
       'utf-8'
     );
     assert.equal(content, 'investigation data');
@@ -81,7 +81,7 @@ test('update preserves _investigations contents', async () => {
 });
 
 test('update preserves squads contents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -104,8 +104,8 @@ test('update preserves squads contents', async () => {
   }
 });
 
-test('update writes new version to .squados-version', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+test('update writes new version to .opensquad-version', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -113,7 +113,7 @@ test('update writes new version to .squados-version', async () => {
     await update(tempDir);
 
     const version = await readFile(
-      join(tempDir, '_squados', '.squados-version'),
+      join(tempDir, '_opensquad', '.opensquad-version'),
       'utf-8'
     );
     assert.ok(version.trim().length > 0);
@@ -123,12 +123,12 @@ test('update writes new version to .squados-version', async () => {
   }
 });
 
-test('update succeeds without existing .squados-version (legacy install)', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+test('update succeeds without existing .opensquad-version (legacy install)', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
-    await rm(join(tempDir, '_squados', '.squados-version'), { force: true });
+    await rm(join(tempDir, '_opensquad', '.opensquad-version'), { force: true });
 
     const result = await update(tempDir);
     assert.equal(result.success, true);
@@ -138,7 +138,7 @@ test('update succeeds without existing .squados-version (legacy install)', async
 });
 
 test('update returns success when initialized', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -150,7 +150,7 @@ test('update returns success when initialized', async () => {
 });
 
 test('update installs new bundled agents not already present', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     await init(tempDir, { _skipPrompts: true });
 
@@ -175,7 +175,7 @@ test('update installs new bundled agents not already present', async () => {
 });
 
 test('update does not overwrite existing agent files', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
   try {
     await init(tempDir, { _skipPrompts: true });
 

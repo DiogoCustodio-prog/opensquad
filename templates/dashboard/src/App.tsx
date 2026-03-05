@@ -30,7 +30,7 @@ export function App() {
           letterSpacing: 0.5,
         }}
       >
-        SquadOS Dashboard
+        opensquad Dashboard
       </header>
 
       {/* Main content */}

@@ -31,13 +31,13 @@ export async function init(targetDir, options = {}) {
   // Check if already initialized
   let isReInit = false;
   try {
-    await stat(join(targetDir, '_squados'));
+    await stat(join(targetDir, '_opensquad'));
     isReInit = true;
   } catch {
     // Not initialized yet — continue
   }
 
-  console.log(isReInit ? '\n  🔄 SquadOS — Re-configure\n' : '\n  🟢 SquadOS — Setup\n');
+  console.log(isReInit ? '\n  🔄 Opensquad — Re-configure\n' : '\n  🟢 Opensquad — Setup\n');
 
   // Guided installation (skip in test mode)
   let language = options._language || 'English';
@@ -77,8 +77,9 @@ export async function init(targetDir, options = {}) {
   await writeProjectReadme(targetDir);
 
   // Write user preferences
-  const prefsPath = join(targetDir, '_squados', '_memory', 'preferences.md');
-  const prefsContent = `# SquadOS Preferences
+  const prefsPath = join(targetDir, '_opensquad', '_memory', 'preferences.md');
+  await mkdir(dirname(prefsPath), { recursive: true });
+  const prefsContent = `# Opensquad Preferences
 
 - **User Name:** ${userName}
 - **Output Language:** ${language}
@@ -106,7 +107,7 @@ export async function init(targetDir, options = {}) {
 
 export async function loadSavedLocale(targetDir) {
   try {
-    const prefsPath = join(targetDir, '_squados', '_memory', 'preferences.md');
+    const prefsPath = join(targetDir, '_opensquad', '_memory', 'preferences.md');
     const content = await readFile(prefsPath, 'utf-8');
     const match = content.match(/\*\*Output Language:\*\*\s*(.+)/);
     if (match) {

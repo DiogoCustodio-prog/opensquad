@@ -3,7 +3,7 @@ task: "Propose Visual Identities"
 order: 1
 input:
   - carousel_draft: output/carousel-draft.md (copy final dos slides — tom e conteúdo)
-  - company_context: _squados/_memory/company.md
+  - company_context: _opensquad/_memory/company.md
   - anti_patterns: pipeline/data/anti-patterns.md
 output:
   - visual_identities: 3 propostas de identidade visual distintas (output/visual-identities.yaml)

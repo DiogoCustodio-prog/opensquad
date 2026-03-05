@@ -13,7 +13,7 @@
 ### Task 1: Update runner.pipeline.md — Add checkpoint logic
 
 **Files:**
-- Modify: `templates/_squados/core/runner.pipeline.md`
+- Modify: `templates/_opensquad/core/runner.pipeline.md`
 
 **Step 1: Remove the `type: checkpoint` handler**
 
@@ -113,7 +113,7 @@ This state does NOT persist to disk — it exists only during the current run.
 **Step 4: Commit**
 
 ```bash
-git add templates/_squados/core/runner.pipeline.md
+git add templates/_opensquad/core/runner.pipeline.md
 git commit -m "feat: add automatic checkpoint logic to pipeline runner"
 ```
 
@@ -474,7 +474,7 @@ git commit -m "feat: rename review to step-04, remove final checkpoint step"
 ### Task 8: Update architect.agent.yaml — New checkpoint rules
 
 **Files:**
-- Modify: `templates/_squados/core/architect.agent.yaml`
+- Modify: `templates/_opensquad/core/architect.agent.yaml`
 
 **Step 1: Update principle about checkpoints**
 
@@ -596,7 +596,7 @@ To:
 **Step 8: Commit**
 
 ```bash
-git add templates/_squados/core/architect.agent.yaml
+git add templates/_opensquad/core/architect.agent.yaml
 git commit -m "feat: update architect with automatic checkpoint rules and heuristics"
 ```
 

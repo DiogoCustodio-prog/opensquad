@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add two new tools (`asset-fetcher` and `visual-renderer`) to the SquadOS registry and update the Architect to suggest them for visual output squads.
+**Goal:** Add two new tools (`asset-fetcher` and `visual-renderer`) to the Opensquad registry and update the Architect to suggest them for visual output squads.
 
-**Architecture:** Two `.tool.yaml` files in `_squados/tools/registry/` following the existing schema (matching `canva.tool.yaml` and `apify.tool.yaml` format). Both use Playwright MCP. The Architect agent gets a new "Visual Output Squad Pattern" in Phase 4 to guide squad design when these tools are installed.
+**Architecture:** Two `.tool.yaml` files in `_opensquad/tools/registry/` following the existing schema (matching `canva.tool.yaml` and `apify.tool.yaml` format). Both use Playwright MCP. The Architect agent gets a new "Visual Output Squad Pattern" in Phase 4 to guide squad design when these tools are installed.
 
 **Tech Stack:** YAML (tool definitions), Markdown (Architect agent config), Playwright MCP (runtime dependency)
 
@@ -13,11 +13,11 @@
 ### Task 1: Create asset-fetcher.tool.yaml
 
 **Files:**
-- Create: `_squados/tools/registry/asset-fetcher.tool.yaml`
+- Create: `_opensquad/tools/registry/asset-fetcher.tool.yaml`
 
 **Step 1: Create the tool definition file**
 
-Write `_squados/tools/registry/asset-fetcher.tool.yaml` with this exact content:
+Write `_opensquad/tools/registry/asset-fetcher.tool.yaml` with this exact content:
 
 ```yaml
 name: Asset Fetcher
@@ -100,15 +100,15 @@ useful_for: [content-design, social-media-content, visual-content, visual-enrich
 
 **Step 2: Validate YAML syntax**
 
-Run: `cd "d:\Coding Projects\squados" && node -e "const yaml = require('yaml'); const fs = require('fs'); const doc = yaml.parse(fs.readFileSync('_squados/tools/registry/asset-fetcher.tool.yaml', 'utf8')); console.log('Valid YAML. id:', doc.id, 'type:', doc.type, 'categories:', doc.categories)"`
+Run: `cd "d:\Coding Projects\opensquad" && node -e "const yaml = require('yaml'); const fs = require('fs'); const doc = yaml.parse(fs.readFileSync('_opensquad/tools/registry/asset-fetcher.tool.yaml', 'utf8')); console.log('Valid YAML. id:', doc.id, 'type:', doc.type, 'categories:', doc.categories)"`
 
 Expected output: `Valid YAML. id: asset-fetcher type: hybrid categories: [ 'assets', 'scraping', 'automation', 'images' ]`
 
-If yaml module not available, use: `node -e "const fs = require('fs'); try { JSON.stringify(require('js-yaml').load(fs.readFileSync('_squados/tools/registry/asset-fetcher.tool.yaml', 'utf8'))); console.log('Valid') } catch(e) { console.log('Trying basic check...'); const content = fs.readFileSync('_squados/tools/registry/asset-fetcher.tool.yaml', 'utf8'); console.log('File exists, lines:', content.split('\n').length) }"`
+If yaml module not available, use: `node -e "const fs = require('fs'); try { JSON.stringify(require('js-yaml').load(fs.readFileSync('_opensquad/tools/registry/asset-fetcher.tool.yaml', 'utf8'))); console.log('Valid') } catch(e) { console.log('Trying basic check...'); const content = fs.readFileSync('_opensquad/tools/registry/asset-fetcher.tool.yaml', 'utf8'); console.log('File exists, lines:', content.split('\n').length) }"`
 
 **Step 3: Verify structure matches existing tools**
 
-Confirm the file has these required fields (per `_squados/core/tools.engine.md:20-39`):
+Confirm the file has these required fields (per `_opensquad/core/tools.engine.md:20-39`):
 - `name` (string) ✓
 - `id` (string) ✓
 - `version` (string) ✓
@@ -122,8 +122,8 @@ Confirm the file has these required fields (per `_squados/core/tools.engine.md:2
 **Step 4: Commit**
 
 ```bash
-git add _squados/tools/registry/asset-fetcher.tool.yaml
-git commit -m "feat: add asset-fetcher tool to SquadOS registry
+git add _opensquad/tools/registry/asset-fetcher.tool.yaml
+git commit -m "feat: add asset-fetcher tool to Opensquad registry
 
 Hybrid tool that acquires visual assets via web search and
 Playwright screenshots. Depends on Playwright MCP plugin."
@@ -134,11 +134,11 @@ Playwright screenshots. Depends on Playwright MCP plugin."
 ### Task 2: Create visual-renderer.tool.yaml
 
 **Files:**
-- Create: `_squados/tools/registry/visual-renderer.tool.yaml`
+- Create: `_opensquad/tools/registry/visual-renderer.tool.yaml`
 
 **Step 1: Create the tool definition file**
 
-Write `_squados/tools/registry/visual-renderer.tool.yaml` with this exact content:
+Write `_opensquad/tools/registry/visual-renderer.tool.yaml` with this exact content:
 
 ```yaml
 name: Visual Renderer
@@ -245,8 +245,8 @@ Same validation approach as Task 1, adapted for this file path.
 **Step 3: Commit**
 
 ```bash
-git add _squados/tools/registry/visual-renderer.tool.yaml
-git commit -m "feat: add visual-renderer tool to SquadOS registry
+git add _opensquad/tools/registry/visual-renderer.tool.yaml
+git commit -m "feat: add visual-renderer tool to Opensquad registry
 
 MCP tool that renders HTML/CSS into PNG images via Playwright.
 Generic engine — visual format defined entirely by HTML templates."
@@ -257,8 +257,8 @@ Generic engine — visual format defined entirely by HTML templates."
 ### Task 3: Update Architect — add Visual Output Squad Pattern
 
 **Files:**
-- Modify: `_squados/core/architect.agent.yaml:26-42` (principles section)
-- Modify: `_squados/core/architect.agent.yaml:375-459` (Phase 4 Design section)
+- Modify: `_opensquad/core/architect.agent.yaml:26-42` (principles section)
+- Modify: `_opensquad/core/architect.agent.yaml:375-459` (Phase 4 Design section)
 
 **Step 1: Add visual output principle**
 
@@ -266,7 +266,7 @@ In the `principles` array (line ~42 of `architect.agent.yaml`), add a new princi
 
 Find:
 ```yaml
-      - "Tool discovery: after extraction, scan _squados/tools/registry/ for tools matching the squad's needs and offer relevant integrations to the user before designing the squad"
+      - "Tool discovery: after extraction, scan _opensquad/tools/registry/ for tools matching the squad's needs and offer relevant integrations to the user before designing the squad"
 ```
 
 Add after it:
@@ -340,7 +340,7 @@ Add after it:
 
 The Architect file is a large YAML with multi-line strings. Verify the file is still valid:
 
-Run: `node -e "const yaml = require('yaml'); const fs = require('fs'); const doc = yaml.parse(fs.readFileSync('_squados/core/architect.agent.yaml', 'utf8')); console.log('Valid. Principles count:', doc.agent.persona.principles.length)"`
+Run: `node -e "const yaml = require('yaml'); const fs = require('fs'); const doc = yaml.parse(fs.readFileSync('_opensquad/core/architect.agent.yaml', 'utf8')); console.log('Valid. Principles count:', doc.agent.persona.principles.length)"`
 
 Expected: principle count should be one more than before (was ~12, now ~13).
 
@@ -349,7 +349,7 @@ If yaml parser not available, do a basic sanity check: read the file and verify 
 **Step 4: Commit**
 
 ```bash
-git add _squados/core/architect.agent.yaml
+git add _opensquad/core/architect.agent.yaml
 git commit -m "feat: teach Architect about visual output tools
 
 Add Visual Output Squad Pattern to Phase 4 and a new principle
@@ -361,12 +361,12 @@ for designing squads that use visual-renderer and asset-fetcher."
 ### Task 4: Verify tool discovery works
 
 **Files:**
-- Read: `_squados/tools/registry/*.tool.yaml` (all tool files)
-- Read: `_squados/core/tools.engine.md` (discovery logic)
+- Read: `_opensquad/tools/registry/*.tool.yaml` (all tool files)
+- Read: `_opensquad/core/tools.engine.md` (discovery logic)
 
 **Step 1: List all registry tools**
 
-Run: `ls _squados/tools/registry/`
+Run: `ls _opensquad/tools/registry/`
 
 Expected: 4 files:
 - `apify.tool.yaml`
@@ -378,13 +378,13 @@ Expected: 4 files:
 
 Check that both new tools have `useful_for` entries that would match content creation squads:
 
-Run: `grep -A1 "useful_for:" _squados/tools/registry/asset-fetcher.tool.yaml _squados/tools/registry/visual-renderer.tool.yaml`
+Run: `grep -A1 "useful_for:" _opensquad/tools/registry/asset-fetcher.tool.yaml _opensquad/tools/registry/visual-renderer.tool.yaml`
 
 Expected: Both should contain `content-design` and `social-media-content` in their `useful_for` arrays.
 
 **Step 3: Verify Architect principle is present**
 
-Run: `grep "Visual output" _squados/core/architect.agent.yaml`
+Run: `grep "Visual output" _opensquad/core/architect.agent.yaml`
 
 Expected: Should find the new principle about visual output.
 
@@ -398,9 +398,9 @@ If any fixes were needed, commit them. Otherwise, no action needed.
 
 | Task | Action | Files |
 |------|--------|-------|
-| 1 | Create asset-fetcher tool | `_squados/tools/registry/asset-fetcher.tool.yaml` |
-| 2 | Create visual-renderer tool | `_squados/tools/registry/visual-renderer.tool.yaml` |
-| 3 | Update Architect agent | `_squados/core/architect.agent.yaml` |
+| 1 | Create asset-fetcher tool | `_opensquad/tools/registry/asset-fetcher.tool.yaml` |
+| 2 | Create visual-renderer tool | `_opensquad/tools/registry/visual-renderer.tool.yaml` |
+| 3 | Update Architect agent | `_opensquad/core/architect.agent.yaml` |
 | 4 | Verify everything works | Read-only verification |
 
 **Total: 4 tasks, ~3 commits**

@@ -12,7 +12,7 @@ Agents currently use single-word generic names (Scout, Spark, Quill, Eagle). We 
 ### Naming Rules
 
 1. **Format:** `FirstName LastName` — both starting with the same letter (alliteration)
-2. **First name:** Common human name in the user's Output Language (from `_squados/_memory/preferences.md`)
+2. **First name:** Common human name in the user's Output Language (from `_opensquad/_memory/preferences.md`)
 3. **Last name:** Playful reference to the agent's specialty or profession
 4. **Uniqueness:** Each agent in a squad uses a different initial letter
 5. **Exception:** The Architect agent uses only its functional name in the user's language (e.g., "Arquiteto", "Architect")
@@ -32,7 +32,7 @@ Agents currently use single-word generic names (Scout, Spark, Quill, Eagle). We 
 
 ### Language Source
 
-The agent name language comes from `_squados/_memory/preferences.md → Output Language`, which is set during `npx squados init`.
+The agent name language comes from `_opensquad/_memory/preferences.md → Output Language`, which is set during `npx opensquad init`.
 
 ### Changes Required
 

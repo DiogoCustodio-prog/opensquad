@@ -5,16 +5,16 @@
 
 ## Summary
 
-Unify "tools" and "skills" into a single concept called **skills**. Everything an agent can use — MCP integrations, scripts, behavioral prompts — is a skill. The tools system (`_squados/tools/`) is fully replaced by a skills system (`_squados/skills/`).
+Unify "tools" and "skills" into a single concept called **skills**. Everything an agent can use — MCP integrations, scripts, behavioral prompts — is a skill. The tools system (`_opensquad/tools/`) is fully replaced by a skills system (`_opensquad/skills/`).
 
 ## Decisions
 
 1. **Single concept**: "Tools" cease to exist. Everything is a "skill".
 2. **Format**: `SKILL.md` with YAML frontmatter + Markdown body (Anthropic skill-creator pattern, extended).
-3. **Location**: `_squados/skills/` in user repo. Internal to pipeline runner only — no IDE-specific duplication.
-4. **Pre-installed**: Only `squados-skill-creator` ships with `npx squados-init`.
+3. **Location**: `_opensquad/skills/` in user repo. Internal to pipeline runner only — no IDE-specific duplication.
+4. **Pre-installed**: Only `opensquad-skill-creator` ships with `npx opensquad-init`.
 5. **Catalog**: `skills/` at root of main repo (GitHub) with README documenting all available skills.
-6. **Install/update**: Both CLI (`npx squados install/update`) and chat (`/squados`).
+6. **Install/update**: Both CLI (`npx opensquad install/update`) and chat (`/opensquad`).
 7. **Skills engine**: `skills.engine.md` replaces `tools.engine.md`.
 8. **Missing skill at runtime**: Interactive prompt — "Skill X not found. Install now? (y/n)".
 9. **Skill creator**: Full eval/benchmark system adapted from Anthropic, minus description optimization, plus MCP/script support.
@@ -26,7 +26,7 @@ Unify "tools" and "skills" into a single concept called **skills**. Everything a
 ```
 skills/
 ├── README.md                          # Catalog of available skills + install instructions
-├── squados-skill-creator/
+├── opensquad-skill-creator/
 │   ├── SKILL.md
 │   ├── agents/
 │   │   ├── grader.md
@@ -55,12 +55,12 @@ skills/
     └── SKILL.md
 ```
 
-### Templates (copied by `npx squados-init`)
+### Templates (copied by `npx opensquad-init`)
 
 ```
 templates/
-├── _squados/
-│   ├── .squados-version
+├── _opensquad/
+│   ├── .opensquad-version
 │   ├── _memory/
 │   │   ├── company.md
 │   │   └── preferences.md
@@ -71,7 +71,7 @@ templates/
 │   │   ├── platforms/
 │   │   └── prompts/
 │   └── skills/
-│       └── squados-skill-creator/
+│       └── opensquad-skill-creator/
 │           ├── SKILL.md
 │           ├── agents/
 │           ├── references/
@@ -86,9 +86,9 @@ templates/
 ### User repo (after init + some installs)
 
 ```
-_squados/
+_opensquad/
 ├── skills/
-│   ├── squados-skill-creator/        # Pre-installed
+│   ├── opensquad-skill-creator/        # Pre-installed
 │   │   ├── SKILL.md
 │   │   ├── agents/
 │   │   ├── references/
@@ -189,14 +189,14 @@ Combines `mcp` and `script` sections in the same frontmatter.
 
 | Command | Description |
 |---|---|
-| `npx squados install <name>` | Download skill from GitHub → `_squados/skills/<name>/` |
-| `npx squados install <name> --version X.Y.Z` | Install specific version |
-| `npx squados uninstall <name>` | Remove skill |
-| `npx squados update` | Update all installed skills |
-| `npx squados update <name>` | Update specific skill |
-| `npx squados skills` | List installed skills with status |
+| `npx opensquad install <name>` | Download skill from GitHub → `_opensquad/skills/<name>/` |
+| `npx opensquad install <name> --version X.Y.Z` | Install specific version |
+| `npx opensquad uninstall <name>` | Remove skill |
+| `npx opensquad update` | Update all installed skills |
+| `npx opensquad update <name>` | Update specific skill |
+| `npx opensquad skills` | List installed skills with status |
 
-### Chat (`/squados`)
+### Chat (`/opensquad`)
 
 Natural language equivalents of CLI commands:
 - "instala a skill canva"
@@ -207,7 +207,7 @@ Natural language equivalents of CLI commands:
 ### Installation flow
 
 1. Fetch skill from GitHub repo (`skills/<name>/`)
-2. Copy entire folder to `_squados/skills/<name>/`
+2. Copy entire folder to `_opensquad/skills/<name>/`
 3. If skill has `env:` → check if variables exist in `.env`
 4. If env vars missing → warn user which to configure
 5. If skill has `mcp:` → configure MCP server in IDE config (`.claude/settings.local.json`, etc.)
@@ -216,7 +216,7 @@ Natural language equivalents of CLI commands:
 ### Missing skill at pipeline runtime
 
 1. Pipeline reads `skills:` from `squad.yaml`
-2. Checks if `_squados/skills/<name>/` exists
+2. Checks if `_opensquad/skills/<name>/` exists
 3. If not → "Skill `canva` not found. Install now? (y/n)"
 4. If yes → run installation flow
 5. If no → pipeline stops with error
@@ -234,7 +234,7 @@ Replaces `tools.engine.md`. Responsibilities:
 ### 1. Resolution
 
 - Read `skills:` from `squad.yaml`
-- Load `_squados/skills/<name>/SKILL.md` for each skill
+- Load `_opensquad/skills/<name>/SKILL.md` for each skill
 - Check type (mcp, script, prompt, hybrid)
 - Validate env vars are configured
 - Validate MCP server is accessible (if applicable)
@@ -263,14 +263,14 @@ The engine reads the SKILL.md body and injects after the agent's instructions:
 
 `web_search` and `web_fetch` are always available — no installation needed. The engine recognizes them by name and skips resolution.
 
-## Squados Skill Creator
+## Opensquad Skill Creator
 
-Pre-installed skill for creating new SquadOS skills. Adapted from Anthropic's skill-creator.
+Pre-installed skill for creating new Opensquad skills. Adapted from Anthropic's skill-creator.
 
 ### Structure
 
 ```
-squados-skill-creator/
+opensquad-skill-creator/
 ├── SKILL.md
 ├── agents/
 │   ├── grader.md
@@ -293,15 +293,15 @@ squados-skill-creator/
 4. **Test cases** — 2-3 realistic prompts, run with/without skill
 5. **Eval + review** — grading, benchmark viewer, user feedback
 6. **Iterate** — improve based on feedback, re-test
-7. **Finalize** — skill ready in `_squados/skills/<name>/`
+7. **Finalize** — skill ready in `_opensquad/skills/<name>/`
 
 ### Differences from Anthropic's skill-creator
 
-| Anthropic | SquadOS |
+| Anthropic | Opensquad |
 |---|---|
 | Creates prompt-only skills | Creates 4 types: mcp, script, hybrid, prompt |
 | Description optimization (trigger matching) | Removed — skills are referenced explicitly |
-| Skill goes to `.claude/skills/` | Skill goes to `_squados/skills/` |
+| Skill goes to `.claude/skills/` | Skill goes to `_opensquad/skills/` |
 | Tested by running Claude with/without skill | Tested within squad agent context |
 | `package_skill.py` generates `.skill` file | Not needed — skill stays in final directory |
 
@@ -325,9 +325,9 @@ New document the creator consults, documenting:
 
 ### Files removed
 
-- `_squados/tools/` (entire directory — registry, installed, scripts)
-- `_squados/core/tools.engine.md`
-- `templates/_squados/tools/` (entire directory)
+- `_opensquad/tools/` (entire directory — registry, installed, scripts)
+- `_opensquad/core/tools.engine.md`
+- `templates/_opensquad/tools/` (entire directory)
 
 ### Files renamed/replaced
 
@@ -337,14 +337,14 @@ New document the creator consults, documenting:
 
 ### Files requiring "tools" → "skills" reference updates
 
-- `_squados/core/architect.agent.yaml` — Phase 3.5 "Tool Discovery" → "Skill Discovery"
-- `_squados/core/runner.pipeline.md` — tool resolution sections
-- `_squados/core/prompts/*.prompt.md` — any tool mentions
+- `_opensquad/core/architect.agent.yaml` — Phase 3.5 "Tool Discovery" → "Skill Discovery"
+- `_opensquad/core/runner.pipeline.md` — tool resolution sections
+- `_opensquad/core/prompts/*.prompt.md` — any tool mentions
 - `templates/ide-templates/claude-code/CLAUDE.md`
 - `templates/ide-templates/antigravity/.antigravity/rules.md`
 - `templates/ide-templates/codex/AGENTS.md`
 - `templates/ide-templates/opencode/AGENTS.md`
-- `.claude/skills/squados/SKILL.md` — the `/squados` skill itself
+- `.claude/skills/opensquad/SKILL.md` — the `/opensquad` skill itself
 - `src/i18n.js` — internationalization keys
 - `src/skills.js` — CLI logic
 - `README.md`

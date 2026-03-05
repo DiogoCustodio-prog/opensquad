@@ -35,8 +35,8 @@ Token cost implications (explain to user when presenting options):
 
 ## Files Affected
 
-1. `_squados/core/architect.agent.yaml` — lines 101-113
-2. `templates/_squados/core/architect.agent.yaml` — lines 101-113
+1. `_opensquad/core/architect.agent.yaml` — lines 101-113
+2. `templates/_opensquad/core/architect.agent.yaml` — lines 101-113
 
 ## Scope
 

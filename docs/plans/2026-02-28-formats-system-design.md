@@ -16,7 +16,7 @@ Create a **Formats System** — a new abstraction that defines rules, structure,
 ### Directory
 
 ```
-_squados/core/formats/
+_opensquad/core/formats/
   instagram-feed.md
   instagram-reels.md
   instagram-stories.md
@@ -97,7 +97,7 @@ The `format` field is **optional**. Steps without it work as they do today.
 
 #### Pipeline Runner
 When executing a step with `format:`:
-1. Read `_squados/core/formats/{format}.md`
+1. Read `_opensquad/core/formats/{format}.md`
 2. Inject into agent context after overlays, before skill instructions:
 
 ```
@@ -121,7 +121,7 @@ Base Agent → Squad Overlay (.custom.md) → Format → Skill Instructions
 #### Architect
 During squad creation (Phase 1 — Discovery), the Architect:
 1. Asks about target platforms and content types
-2. Lists available formats from `_squados/core/formats/`
+2. Lists available formats from `_opensquad/core/formats/`
 3. Selects relevant formats
 4. Configures each pipeline step with the correct `format:` field
 
@@ -138,13 +138,13 @@ Any agent that receives a format context interprets it through their role:
 - **Formats are reusable.** The same format file is used across all squads
 
 ### Deprecation
-The existing `_squados/core/platforms/` directory is **deprecated**. Platform-specific content is migrated into the relevant format files. Each format is self-contained — it includes both platform rules and format-specific instructions.
+The existing `_opensquad/core/platforms/` directory is **deprecated**. Platform-specific content is migrated into the relevant format files. Each format is self-contained — it includes both platform rules and format-specific instructions.
 
 ## Migration Path
-1. Create `_squados/core/formats/` directory
-2. Migrate content from `_squados/core/platforms/instagram.md` → `instagram-feed.md`, `instagram-reels.md`, `instagram-stories.md`
+1. Create `_opensquad/core/formats/` directory
+2. Migrate content from `_opensquad/core/platforms/instagram.md` → `instagram-feed.md`, `instagram-reels.md`, `instagram-stories.md`
 3. Migrate content from other platform files similarly
-4. Add deprecation notice to `_squados/core/platforms/*.md`
+4. Add deprecation notice to `_opensquad/core/platforms/*.md`
 5. Update Pipeline Runner to support `format:` field in step frontmatter
 6. Update Architect to ask about formats during squad creation
 7. Add new platforms not previously covered (WhatsApp, Email, Blog)

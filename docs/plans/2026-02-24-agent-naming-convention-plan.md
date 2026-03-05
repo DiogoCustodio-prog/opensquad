@@ -13,11 +13,11 @@
 ### Task 1: Rename Architect from "Atlas" to "Arquiteto"
 
 **Files:**
-- Modify: `templates/_squados/core/architect.agent.yaml:5`
+- Modify: `templates/_opensquad/core/architect.agent.yaml:5`
 
 **Step 1: Edit the name field**
 
-In `templates/_squados/core/architect.agent.yaml`, change line 5:
+In `templates/_opensquad/core/architect.agent.yaml`, change line 5:
 
 ```yaml
 # OLD
@@ -29,13 +29,13 @@ In `templates/_squados/core/architect.agent.yaml`, change line 5:
 
 **Step 2: Verify the change**
 
-Run: `grep -n "name:" templates/_squados/core/architect.agent.yaml | head -1`
+Run: `grep -n "name:" templates/_opensquad/core/architect.agent.yaml | head -1`
 Expected: `5:    name: Arquiteto`
 
 **Step 3: Commit**
 
 ```bash
-git add templates/_squados/core/architect.agent.yaml
+git add templates/_opensquad/core/architect.agent.yaml
 git commit -m "refactor: rename Architect agent from Atlas to Arquiteto"
 ```
 
@@ -44,11 +44,11 @@ git commit -m "refactor: rename Architect agent from Atlas to Arquiteto"
 ### Task 2: Add naming convention instructions to Architect Phase 4
 
 **Files:**
-- Modify: `templates/_squados/core/architect.agent.yaml:288-294`
+- Modify: `templates/_opensquad/core/architect.agent.yaml:288-294`
 
 **Step 1: Replace the agent naming instruction in Phase 4 item 1**
 
-In `templates/_squados/core/architect.agent.yaml`, find this block (lines 288-294):
+In `templates/_opensquad/core/architect.agent.yaml`, find this block (lines 288-294):
 
 ```yaml
       1. Design the squad with appropriate agents:
@@ -56,7 +56,7 @@ In `templates/_squados/core/architect.agent.yaml`, find this block (lines 288-29
          - Follow the deep .agent.md format with full sections: Persona (Role, Identity,
            Communication Style), Principles, Operational Framework, Voice Guidance,
            Output Examples, Anti-Patterns, Quality Criteria, Integration
-         - Reference prompt templates in _squados/core/prompts/ for each agent type
+         - Reference prompt templates in _opensquad/core/prompts/ for each agent type
            AND the extracted artifacts from Phase 3
 ```
 
@@ -67,12 +67,12 @@ Replace with:
          - Follow the deep .agent.md format with full sections: Persona (Role, Identity,
            Communication Style), Principles, Operational Framework, Voice Guidance,
            Output Examples, Anti-Patterns, Quality Criteria, Integration
-         - Reference prompt templates in _squados/core/prompts/ for each agent type
+         - Reference prompt templates in _opensquad/core/prompts/ for each agent type
            AND the extracted artifacts from Phase 3
 
          #### Agent Naming Convention
 
-         Read the user's preferred language from `_squados/_memory/preferences.md` → **Output Language**.
+         Read the user's preferred language from `_opensquad/_memory/preferences.md` → **Output Language**.
 
          Every agent MUST have a humorous, memorable two-word name following these rules:
          - **Format:** "FirstName LastName" — both words start with the SAME letter (alliteration)
@@ -113,13 +113,13 @@ Replace with:
 
 **Step 2: Verify the change**
 
-Run: `grep -n "Agent Naming Convention" templates/_squados/core/architect.agent.yaml`
+Run: `grep -n "Agent Naming Convention" templates/_opensquad/core/architect.agent.yaml`
 Expected: A match showing the new section header.
 
 **Step 3: Commit**
 
 ```bash
-git add templates/_squados/core/architect.agent.yaml
+git add templates/_opensquad/core/architect.agent.yaml
 git commit -m "feat: add alliterative agent naming convention to Architect Phase 4"
 ```
 
@@ -340,18 +340,18 @@ git commit -m "refactor: update squad-party.csv with alliterative agent names"
 
 **Step 1: Verify no old names remain in template files**
 
-Run: `grep -rn "Scout\|Spark\|Quill\|Eagle\|Atlas" templates/squads/instagram-content/agents/ templates/squads/instagram-content/squad-party.csv templates/_squados/core/architect.agent.yaml | grep -v "^Binary"`
+Run: `grep -rn "Scout\|Spark\|Quill\|Eagle\|Atlas" templates/squads/instagram-content/agents/ templates/squads/instagram-content/squad-party.csv templates/_opensquad/core/architect.agent.yaml | grep -v "^Binary"`
 
 Expected: No matches for Scout, Spark, Quill, Eagle, or Atlas in those files. (Ignore any matches inside long-form text content that coincidentally contains these English words — only `name:` fields and CSV name columns matter.)
 
 **Step 2: Verify new names are present**
 
-Run: `grep -rn "Pedro Pesquisa\|Ivan Ideia\|Carlos Carrossel\|Renata Revisão\|Arquiteto" templates/squads/instagram-content/agents/ templates/squads/instagram-content/squad-party.csv templates/_squados/core/architect.agent.yaml`
+Run: `grep -rn "Pedro Pesquisa\|Ivan Ideia\|Carlos Carrossel\|Renata Revisão\|Arquiteto" templates/squads/instagram-content/agents/ templates/squads/instagram-content/squad-party.csv templates/_opensquad/core/architect.agent.yaml`
 
 Expected: At least 2 matches per agent name (front matter + heading) plus CSV entries, plus Arquiteto in architect.agent.yaml.
 
 **Step 3: Verify naming convention instructions exist**
 
-Run: `grep -n "Agent Naming Convention" templates/_squados/core/architect.agent.yaml`
+Run: `grep -n "Agent Naming Convention" templates/_opensquad/core/architect.agent.yaml`
 
 Expected: One match showing the new section in Phase 4.

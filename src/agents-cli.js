@@ -18,7 +18,7 @@ async function confirm(question) {
 export async function agentsCli(subcommand, args, targetDir) {
   // Require initialized project
   try {
-    await stat(join(targetDir, '_squados'));
+    await stat(join(targetDir, '_opensquad'));
   } catch {
     await loadLocale('English');
     console.log(`\n  ${t('agentsNotInitialized')}\n`);
@@ -53,7 +53,7 @@ export async function agentsCli(subcommand, args, targetDir) {
 }
 
 async function runList(targetDir) {
-  console.log(`\n  SquadOS Agents\n`);
+  console.log(`\n  Opensquad Agents\n`);
 
   const installed = await listInstalled(targetDir);
 

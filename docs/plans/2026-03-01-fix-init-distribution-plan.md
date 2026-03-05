@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Fix SquadOS distribution so `npx squados init` delivers all formats, agents, skills, and up-to-date core files to new projects.
+**Goal:** Fix Opensquad distribution so `npx opensquad init` delivers all formats, agents, skills, and up-to-date core files to new projects.
 
 **Architecture:** Three changes: (1) sync stale templates with source, (2) modify `src/init.js` to auto-install all bundled agents and non-MCP skills silently after copying templates, (3) modify `src/update.js` to install new agents/skills that weren't in the previous version.
 
@@ -17,17 +17,17 @@
 This is a file-copy task — no code changes, just syncing the `templates/` directory with the actual source files.
 
 **Files:**
-- Create: `templates/_squados/core/formats/` (14 files)
-- Delete: `templates/_squados/core/platforms/` (4 deprecated files)
-- Overwrite: `templates/_squados/core/architect.agent.yaml`
-- Overwrite: `templates/_squados/core/runner.pipeline.md`
-- Overwrite: `templates/_squados/core/prompts/sherlock.prompt.md`
+- Create: `templates/_opensquad/core/formats/` (14 files)
+- Delete: `templates/_opensquad/core/platforms/` (4 deprecated files)
+- Overwrite: `templates/_opensquad/core/architect.agent.yaml`
+- Overwrite: `templates/_opensquad/core/runner.pipeline.md`
+- Overwrite: `templates/_opensquad/core/prompts/sherlock.prompt.md`
 
 **Step 1: Copy formats directory to templates**
 
 ```bash
-mkdir -p templates/_squados/core/formats
-cp _squados/core/formats/*.md templates/_squados/core/formats/
+mkdir -p templates/_opensquad/core/formats
+cp _opensquad/core/formats/*.md templates/_opensquad/core/formats/
 ```
 
 This copies all 14 format files (blog-post.md, blog-seo.md, email-newsletter.md, email-sales.md, instagram-feed.md, instagram-reels.md, instagram-stories.md, linkedin-article.md, linkedin-post.md, twitter-post.md, twitter-thread.md, whatsapp-broadcast.md, youtube-script.md, youtube-shorts.md).
@@ -35,7 +35,7 @@ This copies all 14 format files (blog-post.md, blog-seo.md, email-newsletter.md,
 **Step 2: Delete deprecated platforms directory from templates**
 
 ```bash
-rm -rf templates/_squados/core/platforms
+rm -rf templates/_opensquad/core/platforms
 ```
 
 The `platforms/` directory was deprecated in favor of the `formats/` system. It was deleted from source but left in templates.
@@ -43,15 +43,15 @@ The `platforms/` directory was deprecated in favor of the `formats/` system. It 
 **Step 3: Sync outdated core files**
 
 ```bash
-cp _squados/core/architect.agent.yaml templates/_squados/core/architect.agent.yaml
-cp _squados/core/runner.pipeline.md templates/_squados/core/runner.pipeline.md
-cp _squados/core/prompts/sherlock.prompt.md templates/_squados/core/prompts/sherlock.prompt.md
+cp _opensquad/core/architect.agent.yaml templates/_opensquad/core/architect.agent.yaml
+cp _opensquad/core/runner.pipeline.md templates/_opensquad/core/runner.pipeline.md
+cp _opensquad/core/prompts/sherlock.prompt.md templates/_opensquad/core/prompts/sherlock.prompt.md
 ```
 
 **Step 4: Verify sync is correct**
 
 ```bash
-diff -r _squados/core templates/_squados/core --brief
+diff -r _opensquad/core templates/_opensquad/core --brief
 ```
 
 Expected output: should show NO differences (or only differences for files that intentionally differ).
@@ -67,7 +67,7 @@ Expected: all 19 tests pass.
 **Step 6: Commit**
 
 ```bash
-git add templates/_squados/core/
+git add templates/_opensquad/core/
 git commit -m "fix: sync templates with source — add formats, remove platforms, update configs"
 ```
 
@@ -75,7 +75,7 @@ git commit -m "fix: sync templates with source — add formats, remove platforms
 
 ### Task 2: Add agent auto-install to init
 
-Modify `src/init.js` to silently install all bundled agents during `npx squados init`.
+Modify `src/init.js` to silently install all bundled agents during `npx opensquad init`.
 
 **Files:**
 - Modify: `src/init.js:1-7` (add import), `src/init.js:90-93` (add call)
@@ -86,7 +86,7 @@ Add to `tests/init.test.js`:
 
 ```js
 test('init installs all bundled agents', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -188,11 +188,11 @@ Modify `src/init.js` to silently install all non-MCP bundled skills during init.
 - `image-creator` — type: mcp → **skip** (already in interactive prompt)
 - `image-fetcher` — type: hybrid → **skip** (already in interactive prompt)
 - `instagram-publisher` — type: script, env: 3 vars → **skip** (already in interactive prompt)
-- `squados-skill-creator` — type: prompt → **skip** (internal, already filtered)
+- `opensquad-skill-creator` — type: prompt → **skip** (internal, already filtered)
 
 All current bundled skills are either MCP, hybrid, or have env vars — they're ALL already offered via the interactive skills selection prompt during init. The `listAvailable()` + `getSkillMeta()` flow in `init.js:67-82` already handles them.
 
-The auto-install mechanism is needed for FUTURE non-MCP skills (like `squados-agent-creator` and `squados-agent-updater` which exist in `_squados/skills/` but not in `skills/`). However, looking at the current codebase, the skills in `_squados/skills/` are template-distributed (copied from `templates/_squados/skills/`), NOT installed from `skills/`.
+The auto-install mechanism is needed for FUTURE non-MCP skills (like `opensquad-agent-creator` and `opensquad-agent-updater` which exist in `_opensquad/skills/` but not in `skills/`). However, looking at the current codebase, the skills in `_opensquad/skills/` are template-distributed (copied from `templates/_opensquad/skills/`), NOT installed from `skills/`.
 
 **Decision:** The auto-install function should be added now as infrastructure, but currently it will be a no-op since all bundled skills require user interaction (MCP config, env vars). The function should filter to only install skills that have NO env vars AND are NOT type `mcp` or `hybrid`.
 
@@ -206,14 +206,14 @@ Add to `tests/init.test.js`:
 
 ```js
 test('init does not install MCP skills automatically', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
 
     // MCP skills should NOT be auto-installed (they need user configuration)
-    // Only skills from templates/_squados/skills/ should exist
-    const skillsDir = join(tempDir, '_squados', 'skills');
+    // Only skills from templates/_opensquad/skills/ should exist
+    const skillsDir = join(tempDir, '_opensquad', 'skills');
     const entries = await readdir(skillsDir);
 
     // apify, blotato, canva etc should NOT be in the skills dir
@@ -243,7 +243,7 @@ Add a new function:
 async function installNonMcpSkills(targetDir) {
   const available = await listAvailable();
   for (const id of available) {
-    if (id === 'squados-skill-creator') continue;
+    if (id === 'opensquad-skill-creator') continue;
     const meta = await getSkillMeta(id);
     if (!meta) continue;
     // Skip MCP/hybrid skills — they need user configuration
@@ -251,7 +251,7 @@ async function installNonMcpSkills(targetDir) {
     // Skip skills with env vars — they need user setup
     if (meta.env?.length > 0) continue;
     await installSkill(id, targetDir);
-    console.log(`  ${t('createdFile', { path: `_squados/skills/${id}/SKILL.md` })}`);
+    console.log(`  ${t('createdFile', { path: `_opensquad/skills/${id}/SKILL.md` })}`);
   }
 }
 ```
@@ -285,11 +285,11 @@ git commit -m "feat(init): auto-install non-MCP bundled skills during init"
 
 ### Task 4: Add agent/skill install to update
 
-Modify `src/update.js` to install NEW bundled agents and non-MCP skills during `npx squados update`. This handles the case where a user already has SquadOS installed and a new version adds agents/skills.
+Modify `src/update.js` to install NEW bundled agents and non-MCP skills during `npx opensquad update`. This handles the case where a user already has Opensquad installed and a new version adds agents/skills.
 
 **Key behavior:**
 - Install agents that exist in the bundle but NOT in the user's `agents/` directory
-- Install non-MCP skills that exist in the bundle but NOT in the user's `_squados/skills/` directory
+- Install non-MCP skills that exist in the bundle but NOT in the user's `_opensquad/skills/` directory
 - NEVER overwrite existing agents (they're in PROTECTED_PATHS and may have user customizations)
 - NEVER overwrite existing skills (user may have modified them)
 
@@ -308,7 +308,7 @@ import { mkdtemp, rm, readFile, writeFile, mkdir, readdir } from 'node:fs/promis
 
 ```js
 test('update installs new bundled agents not already present', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -379,14 +379,14 @@ Add new agent/skill installation after the IDE templates loop (after line 113, b
   const installedSkills = await listInstalledSkills(targetDir);
   let newSkills = 0;
   for (const id of availableSkills) {
-    if (id === 'squados-skill-creator') continue;
+    if (id === 'opensquad-skill-creator') continue;
     if (installedSkills.includes(id)) continue;
     const meta = await getSkillMeta(id);
     if (!meta) continue;
     if (meta.type === 'mcp' || meta.type === 'hybrid') continue;
     if (meta.env?.length > 0) continue;
     await installSkill(id, targetDir);
-    console.log(`  ${t('createdFile', { path: `_squados/skills/${id}/SKILL.md` })}`);
+    console.log(`  ${t('createdFile', { path: `_opensquad/skills/${id}/SKILL.md` })}`);
     newSkills++;
   }
 ```
@@ -405,7 +405,7 @@ Add to `tests/update.test.js`:
 
 ```js
 test('update does not overwrite existing agent files', async () => {
-  const tempDir = await mkdtemp(join(tmpdir(), 'squados-test-'));
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
 
   try {
     await init(tempDir, { _skipPrompts: true });
@@ -450,16 +450,16 @@ git commit -m "feat(update): install new bundled agents and non-MCP skills durin
 
 ---
 
-### Task 5: Update squados-dev skill
+### Task 5: Update opensquad-dev skill
 
-Update the squados-dev verification skill to check the new init behavior.
+Update the opensquad-dev verification skill to check the new init behavior.
 
 **Files:**
-- Modify: `.claude/skills/squados-dev/SKILL.md`
+- Modify: `.claude/skills/opensquad-dev/SKILL.md`
 
 **Step 1: Add Check H to the skill**
 
-Add a new check section after Check G in `.claude/skills/squados-dev/SKILL.md`:
+Add a new check section after Check G in `.claude/skills/opensquad-dev/SKILL.md`:
 
 ```markdown
 #### Check H: Init installs agents and skills (`src/init.js` changed)
@@ -471,44 +471,44 @@ Add a new check section after Check G in `.claude/skills/squados-dev/SKILL.md`:
 5. If any of these are missing: **FAIL** — "Init does not auto-install agents/skills"
 ```
 
-Also update the "How SquadOS Distribution Works" section to reflect the new behavior:
+Also update the "How Opensquad Distribution Works" section to reflect the new behavior:
 
 Change:
 ```
 - **`agents/`** (project root) → Predefined agent catalog, distributed via npm
   (`package.json files[]`). NOT in templates — users install agents via
-  `npx squados agents install`. Protected from overwrites in `src/update.js:PROTECTED_PATHS`.
+  `npx opensquad agents install`. Protected from overwrites in `src/update.js:PROTECTED_PATHS`.
 
 - **`skills/`** (project root) → Bundled skills catalog, distributed via npm
-  (`package.json files[]`). Users install via `npx squados skills install`.
+  (`package.json files[]`). Users install via `npx opensquad skills install`.
 ```
 
 To:
 ```
 - **`agents/`** (project root) → Predefined agent catalog, distributed via npm
-  (`package.json files[]`). Auto-installed during `npx squados init` and new agents
-  added during `npx squados update`. Protected from overwrites in
+  (`package.json files[]`). Auto-installed during `npx opensquad init` and new agents
+  added during `npx opensquad update`. Protected from overwrites in
   `src/update.js:PROTECTED_PATHS`. Users can also install manually via
-  `npx squados agents install`.
+  `npx opensquad agents install`.
 
 - **`skills/`** (project root) → Bundled skills catalog, distributed via npm
   (`package.json files[]`). Non-MCP skills are auto-installed during init.
   MCP skills (type: mcp/hybrid or with env vars) are offered interactively
-  during init. Users can also install manually via `npx squados skills install`.
+  during init. Users can also install manually via `npx opensquad skills install`.
 ```
 
 **Step 2: Commit**
 
 ```bash
-git add .claude/skills/squados-dev/SKILL.md
-git commit -m "docs(squados-dev): add Check H for agent/skill auto-install verification"
+git add .claude/skills/opensquad-dev/SKILL.md
+git commit -m "docs(opensquad-dev): add Check H for agent/skill auto-install verification"
 ```
 
 ---
 
-### Task 6: Final verification — run squados-dev skill
+### Task 6: Final verification — run opensquad-dev skill
 
-After all code changes are committed, run `/squados-dev` to verify the distribution is now consistent.
+After all code changes are committed, run `/opensquad-dev` to verify the distribution is now consistent.
 
 **Step 1: Run all tests**
 
@@ -518,9 +518,9 @@ node --test tests/**/*.test.js
 
 Expected: all tests pass.
 
-**Step 2: Run squados-dev manually**
+**Step 2: Run opensquad-dev manually**
 
-Invoke the `/squados-dev` skill. It should now report:
+Invoke the `/opensquad-dev` skill. It should now report:
 
 ```
 ✅ All checks passed — distribution is consistent.
@@ -534,11 +534,11 @@ If any issues remain, fix them before proceeding.
 
 | # | Task | Files |
 |---|------|-------|
-| 1 | Sync templates with source | `templates/_squados/core/` (sync + delete platforms) |
+| 1 | Sync templates with source | `templates/_opensquad/core/` (sync + delete platforms) |
 | 2 | Add agent auto-install to init | `src/init.js`, `tests/init.test.js` |
 | 3 | Add non-MCP skill auto-install to init | `src/init.js`, `tests/init.test.js` |
 | 4 | Add agent/skill install to update | `src/update.js`, `tests/update.test.js` |
-| 5 | Update squados-dev skill | `.claude/skills/squados-dev/SKILL.md` |
-| 6 | Final verification | Run tests + `/squados-dev` |
+| 5 | Update opensquad-dev skill | `.claude/skills/opensquad-dev/SKILL.md` |
+| 6 | Final verification | Run tests + `/opensquad-dev` |
 
 **Total**: 6 tasks, 5 files modified, 14 template files created, 4 template files deleted

@@ -13,7 +13,7 @@
 ### Task 1: Update Performance Mode question in core architect.agent.yaml
 
 **Files:**
-- Modify: `_squados/core/architect.agent.yaml:101-113`
+- Modify: `_opensquad/core/architect.agent.yaml:101-113`
 
 **Step 1: Replace the Performance Mode question block**
 
@@ -44,7 +44,7 @@ Replace lines 101-113 with:
 
 **Step 2: Rename remaining "Rápido" references in the same file**
 
-Replace all other occurrences of `Rápido` with `Econômico` in `_squados/core/architect.agent.yaml`:
+Replace all other occurrences of `Rápido` with `Econômico` in `_opensquad/core/architect.agent.yaml`:
 - Line 394: `Rápido:` → `Econômico:`
 - Line 404: `Rápido:` → `Econômico:`
 - Line 412: `Rápido:` → `Econômico:`
@@ -55,7 +55,7 @@ Replace all other occurrences of `Rápido` with `Econômico` in `_squados/core/a
 **Step 3: Commit**
 
 ```bash
-git add _squados/core/architect.agent.yaml
+git add _opensquad/core/architect.agent.yaml
 git commit -m "feat: add token cost to performance mode question in architect"
 ```
 
@@ -64,7 +64,7 @@ git commit -m "feat: add token cost to performance mode question in architect"
 ### Task 2: Mirror changes to templates architect.agent.yaml
 
 **Files:**
-- Modify: `templates/_squados/core/architect.agent.yaml:101-113`
+- Modify: `templates/_opensquad/core/architect.agent.yaml:101-113`
 
 **Step 1: Apply identical changes from Task 1**
 
@@ -73,7 +73,7 @@ The templates file is identical to the core file. Apply the same Performance Mod
 **Step 2: Commit**
 
 ```bash
-git add templates/_squados/core/architect.agent.yaml
+git add templates/_opensquad/core/architect.agent.yaml
 git commit -m "feat: mirror token cost changes to architect template"
 ```
 
@@ -82,10 +82,10 @@ git commit -m "feat: mirror token cost changes to architect template"
 ### Task 3: Rename "Rápido" in prompt templates
 
 **Files:**
-- Modify: `_squados/core/prompts/analyst.prompt.md:46`
-- Modify: `_squados/core/prompts/reviewer.prompt.md:45`
-- Modify: `templates/_squados/core/prompts/analyst.prompt.md:46`
-- Modify: `templates/_squados/core/prompts/reviewer.prompt.md:45`
+- Modify: `_opensquad/core/prompts/analyst.prompt.md:46`
+- Modify: `_opensquad/core/prompts/reviewer.prompt.md:45`
+- Modify: `templates/_opensquad/core/prompts/analyst.prompt.md:46`
+- Modify: `templates/_opensquad/core/prompts/reviewer.prompt.md:45`
 
 **Step 1: Replace in all 4 files**
 
@@ -101,6 +101,6 @@ with:
 **Step 2: Commit**
 
 ```bash
-git add _squados/core/prompts/analyst.prompt.md _squados/core/prompts/reviewer.prompt.md templates/_squados/core/prompts/analyst.prompt.md templates/_squados/core/prompts/reviewer.prompt.md
+git add _opensquad/core/prompts/analyst.prompt.md _opensquad/core/prompts/reviewer.prompt.md templates/_opensquad/core/prompts/analyst.prompt.md templates/_opensquad/core/prompts/reviewer.prompt.md
 git commit -m "feat: rename Rápido to Econômico in prompt templates"
 ```
