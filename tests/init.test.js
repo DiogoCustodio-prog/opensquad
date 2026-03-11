@@ -384,3 +384,21 @@ test('init copies package.json to fresh project', async () => {
     await rm(tempDir, { recursive: true, force: true });
   }
 });
+
+test('init with _ides codex creates .agents/skills/opensquad/SKILL.md', async () => {
+  const tempDir = await mkdtemp(join(tmpdir(), 'opensquad-test-'));
+
+  try {
+    await init(tempDir, { _skipPrompts: true, _ides: ['codex'] });
+
+    const content = await readFile(
+      join(tempDir, '.agents', 'skills', 'opensquad', 'SKILL.md'),
+      'utf-8'
+    );
+    assert.ok(content.includes('name: opensquad'));
+    assert.ok(content.includes('description:'));
+    assert.ok(content.includes('AGENTS.md'));
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
