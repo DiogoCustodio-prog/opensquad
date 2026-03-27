@@ -23,7 +23,7 @@ The investigation output feeds directly into squad data files — making agents,
 
 ## Browser Automation
 
-Sherlock uses browser automation to navigate platforms. The agent should use available browser tools (Playwright CLI, MCP browser tools, or equivalent) to:
+Sherlock uses Playwright CLI for browser automation. Use `npx playwright` commands to:
 - Navigate to URLs
 - Read page content via snapshots
 - Click elements
@@ -143,7 +143,7 @@ On the first investigation for a given platform, Sherlock may encounter a login 
 5. Wait for the user to confirm login is complete
 6. **Ask for consent before saving the session:** "Login successful! Do you want me to save this session for future investigations? Your cookies will be stored locally in `_opensquad/_browser_profile/{platform}.json`. If you say no, the session will only last for this investigation."
 7. If the user consents → the saved JSON file preserves the session cookies for future investigations
-8. If the user declines → delete the session file after the investigation completes
+8. If the user declines → after the investigation completes, inform the user: "Remember: your session cookies are still in `_opensquad/_browser_profile/`. Delete that folder to clear all saved sessions."
 
 ### Subsequent Runs
 
