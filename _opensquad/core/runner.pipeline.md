@@ -25,7 +25,7 @@ Before starting execution:
    c. If type: mcp, verify MCP is configured in `.claude/settings.local.json`
       - If missing → **ERROR**: "Skill '{skill}' MCP not configured. Reinstall the skill."
    All skills must resolve successfully before the pipeline starts (fail fast).
-4. **Load model tier config** (optional reference): Read `_opensquad/config.yaml` to understand the intended model tier for each agent type. This is informational — the Pipeline Runner does NOT use this config directly when dispatching. Individual steps declare their own `model_tier` in their frontmatter, set by the Architect at squad creation time.
+4. **Model tiers**: Individual steps declare their own `model_tier` in their frontmatter (`fast` or `powerful`), set by the Architect at squad creation time.
    - If the file exists: read and note the tier values for reference.
    - If the file doesn't exist: ignore silently — all steps default to `powerful` at dispatch.
 5. Inform the user that the squad is starting:
@@ -222,8 +222,26 @@ Apply this transformation consistently for every write in this step.
    }
    ```
 
-1. **Read the step file** completely: `squads/{name}/pipeline/steps/{step-file}.md`
-2. **Check execution mode** from the step's frontmatter:
+1. **Pre-Step Input Validation** — MANDATORY. If the step's frontmatter declares an `inputFile`, validate that the input exists before executing the step. Run via Bash tool:
+   ```bash
+   test -s "{transformed inputFile path}" && echo "VALIDATION:PASS" || echo "VALIDATION:FAIL"
+   ```
+   - Apply the Output Path Transformation (Step 1: run_id injection) to the `inputFile` path before running the check.
+   - If the Bash output contains `VALIDATION:PASS` → proceed to execute the step.
+   - If the Bash output contains `VALIDATION:FAIL` → do NOT execute the step. Present to user:
+     ```
+     ⚠️ Input for {Agent Name} not found: {path}
+     The previous step may have failed to produce output.
+
+     1. Skip step and continue
+     2. Abort pipeline
+     ```
+     Wait for user choice before proceeding. No retry — if the input doesn't exist, re-executing this step won't create it. The problem is upstream.
+   - If the step does not declare an `inputFile` → skip this validation entirely.
+   - Checkpoint steps (`type: checkpoint`) are exempt — they receive input from the user, not from files.
+
+2. **Read the step file** completely: `squads/{name}/pipeline/steps/{step-file}.md`
+3. **Check execution mode** from the step's frontmatter:
 
 #### If `execution: subagent`
 - Inform user: `🔍 {Agent Name} is working in the background...`
@@ -231,9 +249,7 @@ Apply this transformation consistently for every write in this step.
   Valid values: `fast` or `powerful`. If absent or any other value: default to `powerful`.
 - **Before building the subagent prompt**: Apply the Output Path Transformation (Step 1: run_id injection + Step 2: version folder) to all output paths referenced in the step file. Store the transformed path(s) in working memory — they will be used both in the prompt and in post-completion verification. Never pass raw paths from the step file to the subagent.
 - Use the Task tool to dispatch the step as a subagent:
-  - If `model_tier: fast`: use the fastest/lightest model available in the current environment.
-    You know your own environment — use the lightest model you can dispatch:
-    Claude Code → `model: haiku` | Antigravity → Gemini Flash | Codex → smallest available model
+  - If `model_tier: fast`: use the fastest/lightest model available in your current IDE.
   - If `model_tier: powerful` or absent/invalid: use the default model (no model override needed)
 - In the Task prompt, include:
   - The full agent persona from the party CSV
