@@ -24,7 +24,27 @@ Generate these files directly — they are compilations of data already gathered
 4. `squads/{code}/pipeline/data/output-examples.md` — compile output examples
 5. `squads/{code}/pipeline/data/anti-patterns.md` — compile anti-patterns
 6. `squads/{code}/pipeline/data/tone-of-voice.md` — for content squads, generate with the standard 6 tones
-7. `squads/{code}/_memory/memories.md` — empty squad memory file
+7. `squads/{code}/_memory/memories.md` — empty squad memory file with section headers:
+   ```markdown
+   # Squad Memory: {squad-name}
+
+   ## Estilo de Escrita
+
+   ## Design Visual
+
+   ## Estrutura de Conteúdo
+
+   ## Proibições Explícitas
+
+   ## Técnico (específico do squad)
+   ```
+7b. `squads/{code}/_memory/runs.md` — empty run history log:
+   ```markdown
+   # Run History: {squad-name}
+
+   | Data | Run ID | Tema | Output | Resultado |
+   |------|--------|------|--------|-----------|
+   ```
 8. `squads/{code}/output/.gitkeep` — empty output directory marker (Write tool, empty content — never use mkdir)
 
 ### Reference Materials Guidance
