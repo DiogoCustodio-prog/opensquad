@@ -4,6 +4,7 @@ import type { Server, IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import { watch as chokidarWatch } from "chokidar";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -111,6 +112,54 @@ async function buildSnapshot(squadsDir: string): Promise<WsMessage> {
   };
 }
 
+function getStateStatus(state: SquadState): string {
+  return typeof state.status === "string" ? state.status : "unknown";
+}
+
+function getRunId(state: SquadState): string | null {
+  const value = (state as unknown as Record<string, unknown>).runId;
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function getNestedOptionalString(obj: unknown, key: string): string | null {
+  if (!obj || typeof obj !== "object") return null;
+  const value = (obj as Record<string, unknown>)[key];
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+async function appendAuditEvent(
+  squadsDir: string,
+  eventType: string,
+  squad: string,
+  state: SquadState,
+  payload: Record<string, unknown> = {}
+): Promise<void> {
+  try {
+    const rootDir = path.dirname(squadsDir);
+    const logsDir = path.join(rootDir, "_opensquad", "logs");
+    await fsp.mkdir(logsDir, { recursive: true });
+
+    const rawTicket = (state as unknown as Record<string, unknown>).ticket;
+    const rawGoalTrace = (state as unknown as Record<string, unknown>).goalTrace;
+
+    const entry = {
+      eventId: `evt_${randomUUID()}`,
+      eventType,
+      actor: "system",
+      squad,
+      runId: getRunId(state),
+      ticketId: getNestedOptionalString(rawTicket, "id"),
+      goalTraceId: getNestedOptionalString(rawGoalTrace, "traceId"),
+      createdAt: new Date().toISOString(),
+      payload,
+    };
+
+    await fsp.appendFile(path.join(logsDir, "audit.log"), JSON.stringify(entry) + "\n", "utf-8");
+  } catch {
+    // Audit logs are best-effort and must not break watcher
+  }
+}
+
 function broadcast(wss: WebSocketServer, msg: WsMessage) {
   const data = JSON.stringify(msg);
   for (const client of wss.clients) {
@@ -184,6 +233,56 @@ export function squadWatcherPlugin(): Plugin {
         depth: 2,
       });
 
+      const lastStateBySquad = new Map<string, SquadState>();
+      readActiveStates(squadsDir).then((states) => {
+        for (const [squad, state] of Object.entries(states)) {
+          lastStateBySquad.set(squad, state);
+        }
+      }).catch(() => {
+        // best effort preload
+      });
+
+      function handleStateAudit(squadName: string, nextState: SquadState) {
+        const prevState = lastStateBySquad.get(squadName);
+        const prevStatus = prevState ? getStateStatus(prevState) : null;
+        const nextStatus = getStateStatus(nextState);
+
+        // Start hook
+        if (!prevState && nextStatus === "working") {
+          void appendAuditEvent(squadsDir, "run_started", squadName, nextState, {
+            status: nextStatus,
+            step: nextState.step,
+          });
+        }
+
+        // Status transition hook
+        if (prevStatus !== nextStatus) {
+          void appendAuditEvent(squadsDir, "state_change", squadName, nextState, {
+            from: prevStatus,
+            to: nextStatus,
+            step: nextState.step,
+          });
+        }
+
+        // Terminal hooks
+        if (nextStatus === "completed" && prevStatus !== "completed") {
+          void appendAuditEvent(squadsDir, "run_completed", squadName, nextState, {
+            status: nextStatus,
+            completedAt: (nextState as unknown as Record<string, unknown>).completedAt || null,
+          });
+        }
+
+        if (nextStatus === "failed" && prevStatus !== "failed") {
+          void appendAuditEvent(squadsDir, "run_failed", squadName, nextState, {
+            status: nextStatus,
+            failedAt: (nextState as unknown as Record<string, unknown>).failedAt || null,
+            reason: (nextState as unknown as Record<string, unknown>).error || null,
+          });
+        }
+
+        lastStateBySquad.set(squadName, nextState);
+      }
+
       function handleFileChange(filePath: string) {
         const relative = path.relative(squadsDir, filePath).replace(/\\/g, "/");
         const parts = relative.split("/");
@@ -196,6 +295,7 @@ export function squadWatcherPlugin(): Plugin {
           fsp.readFile(filePath, "utf-8").then((raw) => {
             const parsed = JSON.parse(raw);
             if (!isValidState(parsed)) return;
+            handleStateAudit(squadName, parsed);
             broadcast(wss, { type: "SQUAD_UPDATE", squad: squadName, state: parsed });
           }).catch(() => {
             // Invalid JSON — next change event will retry
@@ -214,6 +314,7 @@ export function squadWatcherPlugin(): Plugin {
         const fileName = parts[1];
 
         if (fileName === "state.json") {
+          lastStateBySquad.delete(squadName);
           broadcast(wss, { type: "SQUAD_INACTIVE", squad: squadName });
         } else if (fileName === "squad.yaml") {
           buildSnapshot(squadsDir).then((snap) => broadcast(wss, snap));
