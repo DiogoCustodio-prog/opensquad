@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { SquadInfo, SquadState } from "@/types/state";
+import type { SquadInfo, SquadState, AuditEvent } from "@/types/state";
 
 interface SquadStore {
   // State
@@ -7,6 +7,7 @@ interface SquadStore {
   activeStates: Map<string, SquadState>;
   selectedSquad: string | null;
   isConnected: boolean;
+  auditEvents: AuditEvent[];
 
   // Actions
   selectSquad: (name: string | null) => void;
@@ -15,6 +16,7 @@ interface SquadStore {
   setSquadActive: (squad: string, state: SquadState) => void;
   updateSquadState: (squad: string, state: SquadState) => void;
   setSquadInactive: (squad: string) => void;
+  setAuditEvents: (events: AuditEvent[]) => void;
 }
 
 export const useSquadStore = create<SquadStore>((set) => ({
@@ -22,6 +24,7 @@ export const useSquadStore = create<SquadStore>((set) => ({
   activeStates: new Map(),
   selectedSquad: null,
   isConnected: false,
+  auditEvents: [],
 
   selectSquad: (name) => set({ selectedSquad: name }),
 
@@ -53,4 +56,6 @@ export const useSquadStore = create<SquadStore>((set) => ({
         selectedSquad: prev.selectedSquad === squad ? null : prev.selectedSquad,
       };
     }),
+
+  setAuditEvents: (events) => set({ auditEvents: events }),
 }));

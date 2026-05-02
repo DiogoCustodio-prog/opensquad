@@ -2,6 +2,7 @@ import type { Plugin, ViteDevServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server, IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
+import { URL } from "node:url";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import { randomUUID } from "node:crypto";
@@ -9,6 +10,18 @@ import { watch as chokidarWatch } from "chokidar";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import type { SquadInfo, SquadState, WsMessage } from "../types/state";
+
+interface AuditEvent {
+  eventId: string;
+  eventType: string;
+  actor: string;
+  squad: string | null;
+  runId: string | null;
+  ticketId: string | null;
+  goalTraceId: string | null;
+  createdAt: string;
+  payload: Record<string, unknown>;
+}
 
 function resolveSquadsDir(): string {
   const candidates = [
@@ -127,6 +140,68 @@ function getNestedOptionalString(obj: unknown, key: string): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
 
+function isAuditEvent(data: unknown): data is AuditEvent {
+  if (!data || typeof data !== "object") return false;
+  const d = data as Record<string, unknown>;
+  return typeof d.eventId === "string" && typeof d.eventType === "string" && typeof d.createdAt === "string";
+}
+
+async function readAuditEvents(
+  squadsDir: string,
+  filters: {
+    ticketId?: string | null;
+    status?: string | null;
+    since?: string | null;
+    until?: string | null;
+    limit?: number;
+  }
+): Promise<AuditEvent[]> {
+  const rootDir = path.dirname(squadsDir);
+  const auditPath = path.join(rootDir, "_opensquad", "logs", "audit.log");
+
+  let raw: string;
+  try {
+    raw = await fsp.readFile(auditPath, "utf-8");
+  } catch {
+    return [];
+  }
+
+  const lines = raw.split("\n").filter(Boolean);
+  const events: AuditEvent[] = [];
+
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(line);
+      if (isAuditEvent(parsed)) {
+        events.push(parsed);
+      }
+    } catch {
+      // ignore malformed line
+    }
+  }
+
+  const sinceMs = filters.since ? Date.parse(filters.since) : NaN;
+  const untilMs = filters.until ? Date.parse(filters.until) : NaN;
+
+  const filtered = events.filter((event) => {
+    if (filters.ticketId && event.ticketId !== filters.ticketId) return false;
+
+    if (filters.status) {
+      const payloadStatus = typeof event.payload?.status === "string" ? event.payload.status : null;
+      if (payloadStatus !== filters.status) return false;
+    }
+
+    const createdAtMs = Date.parse(event.createdAt);
+    if (!Number.isNaN(sinceMs) && createdAtMs < sinceMs) return false;
+    if (!Number.isNaN(untilMs) && createdAtMs > untilMs) return false;
+
+    return true;
+  });
+
+  filtered.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  return filtered.slice(0, Math.max(1, Math.min(filters.limit ?? 50, 500)));
+}
+
 async function appendAuditEvent(
   squadsDir: string,
   eventType: string,
@@ -211,18 +286,51 @@ export function squadWatcherPlugin(): Plugin {
         server.config.logger.error(`[squad-watcher] failed to create squads dir: ${err.message}`);
       });
 
-      // REST API fallback — serves snapshot over HTTP for polling clients
+      // REST API fallback — serves snapshot and audit events over HTTP for polling clients
       server.middlewares.use(async (req, res, next) => {
-        if (req.url !== "/api/snapshot") return next();
-        try {
-          const snapshot = await buildSnapshot(squadsDir);
-          res.setHeader("Content-Type", "application/json");
-          res.setHeader("Cache-Control", "no-cache");
-          res.end(JSON.stringify(snapshot));
-        } catch {
-          res.writeHead(500);
-          res.end("Internal Server Error");
+        const rawUrl = req.url ?? "/";
+        const requestUrl = new URL(rawUrl, "http://localhost");
+
+        if (requestUrl.pathname === "/api/snapshot") {
+          try {
+            const snapshot = await buildSnapshot(squadsDir);
+            res.setHeader("Content-Type", "application/json");
+            res.setHeader("Cache-Control", "no-cache");
+            res.end(JSON.stringify(snapshot));
+          } catch {
+            res.writeHead(500);
+            res.end("Internal Server Error");
+          }
+          return;
         }
+
+        if (requestUrl.pathname === "/api/audit-events") {
+          try {
+            const limit = Number.parseInt(requestUrl.searchParams.get("limit") ?? "50", 10);
+            const ticketId = requestUrl.searchParams.get("ticketId");
+            const status = requestUrl.searchParams.get("status");
+            const since = requestUrl.searchParams.get("since");
+            const until = requestUrl.searchParams.get("until");
+
+            const events = await readAuditEvents(squadsDir, {
+              limit: Number.isNaN(limit) ? 50 : limit,
+              ticketId,
+              status,
+              since,
+              until,
+            });
+
+            res.setHeader("Content-Type", "application/json");
+            res.setHeader("Cache-Control", "no-cache");
+            res.end(JSON.stringify({ events }));
+          } catch {
+            res.writeHead(500);
+            res.end("Internal Server Error");
+          }
+          return;
+        }
+
+        next();
       });
 
       // File watcher using chokidar — reliable cross-platform, handles partial writes
@@ -248,7 +356,7 @@ export function squadWatcherPlugin(): Plugin {
         const nextStatus = getStateStatus(nextState);
 
         // Start hook
-        if (!prevState && nextStatus === "working") {
+        if (!prevState && nextStatus === "running") {
           void appendAuditEvent(squadsDir, "run_started", squadName, nextState, {
             status: nextStatus,
             step: nextState.step,

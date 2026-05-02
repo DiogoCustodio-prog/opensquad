@@ -2,6 +2,7 @@ import { useSquadSocket } from "@/hooks/useSquadSocket";
 import { SquadSelector } from "@/components/SquadSelector";
 import { PhaserGame } from "@/office/PhaserGame";
 import { StatusBar } from "@/components/StatusBar";
+import { AuditEventsCard } from "@/components/AuditEventsCard";
 
 export function App() {
   useSquadSocket();
@@ -37,6 +38,7 @@ export function App() {
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <SquadSelector />
         <PhaserGame />
+        <AuditEventsCard />
       </div>
 
       {/* Footer */}

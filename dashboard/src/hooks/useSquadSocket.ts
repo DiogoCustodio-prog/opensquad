@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useSquadStore } from "@/store/useSquadStore";
-import type { WsMessage } from "@/types/state";
+import type { WsMessage, AuditEvent } from "@/types/state";
 
 const RECONNECT_BASE_MS = 1000;
 const RECONNECT_MAX_MS = 30000;
@@ -15,6 +15,7 @@ export function useSquadSocket() {
   const setSnapshot = useSquadStore((s) => s.setSnapshot);
   const updateSquadState = useSquadStore((s) => s.updateSquadState);
   const setSquadInactive = useSquadStore((s) => s.setSquadInactive);
+  const setAuditEvents = useSquadStore((s) => s.setAuditEvents);
 
   useEffect(() => {
     let disposed = false;
@@ -34,6 +35,18 @@ export function useSquadSocket() {
         case "SQUAD_INACTIVE":
           setSquadInactive(msg.squad);
           break;
+      }
+    }
+
+    async function refreshAuditEvents() {
+      if (disposed) return;
+      try {
+        const res = await fetch("/api/audit-events?limit=30", { cache: "no-store" });
+        if (!res.ok || disposed) return;
+        const data = (await res.json()) as { events?: AuditEvent[] };
+        setAuditEvents(Array.isArray(data.events) ? data.events : []);
+      } catch {
+        // best-effort polling
       }
     }
 
@@ -57,6 +70,7 @@ export function useSquadSocket() {
           const msg: WsMessage = await res.json();
           dispatch(msg);
           setConnected(true);
+          void refreshAuditEvents();
         } catch {
           // Endpoint not available — will retry on next interval
         }
@@ -88,6 +102,7 @@ export function useSquadSocket() {
         reconnectDelay = RECONNECT_BASE_MS;
         wsFailCount = 0;
         stopPolling();
+        void refreshAuditEvents();
       };
 
       ws.onmessage = (event) => {
@@ -95,6 +110,7 @@ export function useSquadSocket() {
         try {
           const msg: WsMessage = JSON.parse(event.data);
           dispatch(msg);
+          void refreshAuditEvents();
         } catch {
           // Ignore malformed messages
         }
@@ -131,5 +147,5 @@ export function useSquadSocket() {
       wsRef.current?.close();
       wsRef.current = null;
     };
-  }, [setConnected, setSnapshot, updateSquadState, setSquadInactive]);
+  }, [setConnected, setSnapshot, updateSquadState, setSquadInactive, setAuditEvents]);
 }
