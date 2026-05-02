@@ -1,0 +1,6 @@
+squad:
+  code: trafego-performance
+  name: Trafego Performance
+  description: Campanhas, otimizacao e leitura de funil.
+  icon: "📈"
+  agents: ["trafego"]

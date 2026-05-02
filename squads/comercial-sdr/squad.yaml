@@ -1,0 +1,6 @@
+squad:
+  code: comercial-sdr
+  name: Comercial SDR
+  description: Qualificacao de leads, triagem e passagem para closer.
+  icon: "📞"
+  agents: ["sdr"]

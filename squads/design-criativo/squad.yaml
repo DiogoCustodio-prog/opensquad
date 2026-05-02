@@ -1,0 +1,6 @@
+squad:
+  code: design-criativo
+  name: Design Criativo
+  description: Criativos de campanha, identidade e pecas.
+  icon: "🎨"
+  agents: ["design"]
