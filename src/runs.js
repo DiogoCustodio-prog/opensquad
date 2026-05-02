@@ -31,7 +31,16 @@ export async function listRuns(squadName, targetDir = process.cwd()) {
     }
 
     for (const runId of runDirs) {
-      const run = { squad: name, runId, status: 'unknown', steps: null, duration: null };
+      const run = {
+        squad: name,
+        runId,
+        status: 'unknown',
+        steps: null,
+        duration: null,
+        ticketId: null,
+        ticketStatus: null,
+        goalTraceId: null,
+      };
 
       try {
         const raw = await readFile(join(outputDir, runId, 'state.json'), 'utf-8');
@@ -43,6 +52,10 @@ export async function listRuns(squadName, targetDir = process.cwd()) {
           const end = new Date(state.completedAt || state.failedAt).getTime();
           run.duration = formatDuration(end - start);
         }
+
+        if (state.ticket?.id) run.ticketId = state.ticket.id;
+        if (state.ticket?.status) run.ticketStatus = state.ticket.status;
+        if (state.goalTrace?.traceId) run.goalTraceId = state.goalTrace.traceId;
       } catch {
         // No state.json or malformed — keep defaults
       }

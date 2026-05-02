@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { logEvent, readCliLogs } from '../src/logger.js';
+import { logEvent, readCliLogs, logAuditEvent, readAuditLogs } from '../src/logger.js';
 
 test('logEvent writes JSONL line to cli.log', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'osq-log-'));
@@ -121,6 +121,47 @@ test('readCliLogs returns empty array when no log file', async () => {
   try {
     const logs = await readCliLogs({}, dir);
     assert.equal(logs.length, 0);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('logAuditEvent writes structured audit event', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'osq-audit-'));
+  try {
+    await logAuditEvent({
+      eventType: 'state_change',
+      actor: 'system',
+      runId: 'run_1',
+      ticketId: 'tck_1',
+      payload: { status: 'started' },
+    }, dir);
+
+    const logs = await readAuditLogs({}, dir);
+    assert.equal(logs.length, 1);
+    assert.equal(logs[0].eventType, 'state_change');
+    assert.equal(logs[0].actor, 'system');
+    assert.equal(logs[0].runId, 'run_1');
+    assert.equal(logs[0].ticketId, 'tck_1');
+    assert.equal(logs[0].payload.status, 'started');
+    assert.ok(logs[0].eventId);
+    assert.ok(logs[0].createdAt);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('readAuditLogs filters by runId and eventType', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'osq-audit-'));
+  try {
+    await logAuditEvent({ eventType: 'state_change', actor: 'system', runId: 'run_1' }, dir);
+    await logAuditEvent({ eventType: 'approval', actor: 'user', runId: 'run_1' }, dir);
+    await logAuditEvent({ eventType: 'state_change', actor: 'system', runId: 'run_2' }, dir);
+
+    const logs = await readAuditLogs({ runId: 'run_1', eventType: 'state_change' }, dir);
+    assert.equal(logs.length, 1);
+    assert.equal(logs[0].runId, 'run_1');
+    assert.equal(logs[0].eventType, 'state_change');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

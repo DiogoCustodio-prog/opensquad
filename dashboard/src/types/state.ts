@@ -56,6 +56,18 @@ export interface SquadInfo {
   agents: string[]; // agent file paths
 }
 
+export interface AuditEvent {
+  eventId: string;
+  eventType: string;
+  actor: string;
+  squad: string | null;
+  runId: string | null;
+  ticketId: string | null;
+  goalTraceId: string | null;
+  createdAt: string;
+  payload: Record<string, unknown>;
+}
+
 // WebSocket messages
 export type WsMessage =
   | { type: "SNAPSHOT"; squads: SquadInfo[]; activeStates: Record<string, SquadState> }

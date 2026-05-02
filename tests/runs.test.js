@@ -164,3 +164,24 @@ test('listRuns ignores non-directory entries in output', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('listRuns includes ticket and goal trace metadata when present', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'osq-runs-'));
+  try {
+    const runDir = join(dir, 'squads', 'my-squad', 'output', '2026-03-17-120000');
+    await mkdir(runDir, { recursive: true });
+    await writeFile(join(runDir, 'state.json'), JSON.stringify({
+      status: 'completed',
+      ticket: { id: 'tck_123', status: 'done' },
+      goalTrace: { traceId: 'goaltrace_123', projectGoal: 'X' },
+    }), 'utf-8');
+
+    const runs = await listRuns(null, dir);
+    assert.equal(runs.length, 1);
+    assert.equal(runs[0].ticketId, 'tck_123');
+    assert.equal(runs[0].ticketStatus, 'done');
+    assert.equal(runs[0].goalTraceId, 'goaltrace_123');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

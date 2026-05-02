@@ -165,6 +165,14 @@ O projeto nasceu da necessidade real de automatizar processos de conteúdo e mar
 
 Contribuições da comunidade são bem-vindas. Veja o [CONTRIBUTING.md](CONTRIBUTING.md) para saber como participar.
 
+## Roadmap de Governança (Paperclip-inspired)
+
+Este fork inclui um roadmap para incorporar padrões de governança operacional inspirados no Paperclip, preservando o motor atual do Opensquad.
+
+Documentos:
+- `PAPERCLIP_PATTERNS_PLAN.md`
+- `PAPERCLIP_PATTERNS_SPEC.md`
+
 ## Licença
 
 MIT — use como quiser.
