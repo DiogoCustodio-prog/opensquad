@@ -1,0 +1,6 @@
+squad:
+  code: marketing-conteudo
+  name: Marketing Conteudo
+  description: Planejamento editorial, copy e calendario.
+  icon: "🧠"
+  agents: ["marketing"]

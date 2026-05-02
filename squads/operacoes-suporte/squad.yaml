@@ -1,0 +1,6 @@
+squad:
+  code: operacoes-suporte
+  name: Operacoes Suporte
+  description: Rotina operacional, QA e incidentes.
+  icon: "🛠️"
+  agents: ["ops"]

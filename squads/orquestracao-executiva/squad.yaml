@@ -1,0 +1,6 @@
+squad:
+  code: orquestracao-executiva
+  name: Orquestracao Executiva
+  description: Coordena prioridades, handoffs e SLAs entre squads.
+  icon: "🎯"
+  agents: ["orquestrador"]

@@ -1,0 +1,6 @@
+squad:
+  code: comercial-closer
+  name: Comercial Closer
+  description: Negociacao, propostas e fechamento.
+  icon: "🤝"
+  agents: ["closer"]
