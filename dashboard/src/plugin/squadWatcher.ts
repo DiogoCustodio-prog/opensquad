@@ -154,8 +154,9 @@ async function readAuditEvents(
     since?: string | null;
     until?: string | null;
     limit?: number;
+    offset?: number;
   }
-): Promise<AuditEvent[]> {
+): Promise<{ events: AuditEvent[]; total: number }> {
   const rootDir = path.dirname(squadsDir);
   const auditPath = path.join(rootDir, "_opensquad", "logs", "audit.log");
 
@@ -163,7 +164,7 @@ async function readAuditEvents(
   try {
     raw = await fsp.readFile(auditPath, "utf-8");
   } catch {
-    return [];
+    return { events: [], total: 0 };
   }
 
   const lines = raw.split("\n").filter(Boolean);
@@ -199,7 +200,14 @@ async function readAuditEvents(
   });
 
   filtered.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-  return filtered.slice(0, Math.max(1, Math.min(filters.limit ?? 50, 500)));
+
+  const safeLimit = Math.max(1, Math.min(filters.limit ?? 50, 500));
+  const safeOffset = Math.max(0, filters.offset ?? 0);
+
+  return {
+    events: filtered.slice(safeOffset, safeOffset + safeLimit),
+    total: filtered.length,
+  };
 }
 
 async function appendAuditEvent(
@@ -307,13 +315,15 @@ export function squadWatcherPlugin(): Plugin {
         if (requestUrl.pathname === "/api/audit-events") {
           try {
             const limit = Number.parseInt(requestUrl.searchParams.get("limit") ?? "50", 10);
+            const offset = Number.parseInt(requestUrl.searchParams.get("offset") ?? "0", 10);
             const ticketId = requestUrl.searchParams.get("ticketId");
             const status = requestUrl.searchParams.get("status");
             const since = requestUrl.searchParams.get("since");
             const until = requestUrl.searchParams.get("until");
 
-            const events = await readAuditEvents(squadsDir, {
+            const result = await readAuditEvents(squadsDir, {
               limit: Number.isNaN(limit) ? 50 : limit,
+              offset: Number.isNaN(offset) ? 0 : offset,
               ticketId,
               status,
               since,
@@ -322,7 +332,7 @@ export function squadWatcherPlugin(): Plugin {
 
             res.setHeader("Content-Type", "application/json");
             res.setHeader("Cache-Control", "no-cache");
-            res.end(JSON.stringify({ events }));
+            res.end(JSON.stringify(result));
           } catch {
             res.writeHead(500);
             res.end("Internal Server Error");
