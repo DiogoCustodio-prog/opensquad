@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AuditEvent } from "@/types/state";
 
 const PAGE_SIZE = 8;
@@ -35,6 +35,8 @@ export function AuditEventsCard() {
   const [since, setSince] = useState("");
   const [until, setUntil] = useState("");
   const [page, setPage] = useState(1);
+  const [hydratedFromUrl, setHydratedFromUrl] = useState(false);
+  const isFirstFilterSync = useRef(true);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -46,9 +48,12 @@ export function AuditEventsCard() {
 
     const rawPage = Number.parseInt(params.get("auditPage") ?? "1", 10);
     setPage(Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage));
+    setHydratedFromUrl(true);
   }, []);
 
   useEffect(() => {
+    if (!hydratedFromUrl) return;
+
     const params = new URLSearchParams(window.location.search);
 
     if (ticketId.trim()) params.set("auditTicketId", ticketId.trim());
@@ -67,7 +72,7 @@ export function AuditEventsCard() {
 
     const next = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
     window.history.replaceState({}, "", next);
-  }, [ticketId, status, since, until, page]);
+  }, [ticketId, status, since, until, page, hydratedFromUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,8 +113,14 @@ export function AuditEventsCard() {
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
 
   useEffect(() => {
+    if (!hydratedFromUrl) return;
+    if (isFirstFilterSync.current) {
+      isFirstFilterSync.current = false;
+      return;
+    }
+
     setPage(1);
-  }, [ticketId, status, since, until]);
+  }, [ticketId, status, since, until, hydratedFromUrl]);
 
   function clearFilters() {
     setTicketId("");
