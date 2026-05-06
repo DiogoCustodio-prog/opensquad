@@ -172,6 +172,7 @@ Este fork inclui um roadmap para incorporar padrões de governança operacional 
 Documentos:
 - `PAPERCLIP_PATTERNS_PLAN.md`
 - `PAPERCLIP_PATTERNS_SPEC.md`
+- `OPERACAO_24X7_OPEN_SQUAD.md` (modelo replicável para execução contínua via runtime)
 
 ## Licença
 

@@ -1,6 +1,62 @@
 squad:
   code: marketing-conteudo
-  name: Marketing Conteudo
-  description: Planejamento editorial, copy e calendario.
+  name: Marketing Conteúdo
+  description: Pipeline multiagente para conteúdo de Instagram com checkpoints e publicação.
   icon: "🧠"
-  agents: ["marketing"]
+  agents:
+    - researcher
+    - strategist
+    - copywriter
+    - designer
+    - reviewer
+    - publisher
+  skills:
+    - web_search
+    - web_fetch
+    - image-creator
+    - instagram-publisher
+  pipeline:
+    steps:
+      - step: 1
+        name: definir-briefing
+        type: checkpoint
+        output_file: squads/marketing-conteudo/output/research-focus.md
+      - step: 2
+        name: pesquisar-tema
+        type: agent
+        agent: researcher
+        execution: subagent
+      - step: 3
+        name: selecionar-noticia
+        type: checkpoint
+        output_file: squads/marketing-conteudo/output/selected-news.md
+      - step: 4
+        name: gerar-angulos
+        type: agent
+        agent: strategist
+        execution: subagent
+      - step: 5
+        name: aprovar-angulo
+        type: checkpoint
+        output_file: squads/marketing-conteudo/output/selected-angle.md
+      - step: 6
+        name: escrever-carrossel
+        type: agent
+        agent: copywriter
+        execution: subagent
+      - step: 7
+        name: aprovar-copy
+        type: checkpoint
+      - step: 8
+        name: criar-slides
+        type: agent
+        agent: designer
+        execution: subagent
+      - step: 9
+        name: revisar-final
+        type: agent
+        agent: reviewer
+        execution: subagent
+      - step: 10
+        name: publicar
+        type: checkpoint
